@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 def clear():
     print("\033[H\033[J", end="")
@@ -18,6 +19,7 @@ commandList = ["ir", "copiar", "limpiar"]
 argNumber = [1,2,0]
 
 def caller(command):
+    out = 'ERROR'
     foundCommand = False
     argc = len(command) - 1
     for i in commandList:
@@ -30,4 +32,9 @@ def caller(command):
             cp(command[1],command[2])
         elif(command[0]==commandList[2] and argc == argNumber[2]):
             clear()
+    else:
+        try:
+            out=subprocess.run(command)
+        except:
+            print(out)
     return 0
