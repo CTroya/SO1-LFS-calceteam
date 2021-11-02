@@ -1,30 +1,21 @@
-from os import close
-from os import system
+import os
+import socket
 from comandos import *
+from resources import bcolors
+import getpass
 
 def main():
     foundCommand = False
     #print(f.readlines())
+    try:
+        user = getpass.getuser()
+        password = getpass.getpass()
+    except Exception as error:
+        print('ERROR', error)
     while 1:
-        a = input("~$ ")
-        tokens  = a.split()
-        argQuant = len(tokens)
-        #print(a.split())
-        for i in commandList: #esto en principio detecta si el usuario ingresa un comando de linux
-            if(tokens[0] == i):
-                foundCommand = True
-        if foundCommand == True:
-            system(a)
-        else:
-            if a == "exit":
-                break
-            elif tokens[0] == 'calcecp':
-                try:
-                    cp(tokens[1],tokens[2])
-                except:
-                    print("calcecp: bobito no sabes usar tu comando")
-            else:
-                print("\""+str(a)+"\" : command not found")
+        c = input(bcolors.OKGREEN+bcolors.BOLD+str(user)+"@Troya"
+        +socket.gethostname()+bcolors.ENDC+":"+bcolors.HEADER+str(os.getcwd())+bcolors.ENDC+"$ ")
+
     return 0
 
 # la idea es usar un diccionario asi no tengo que usar estos if-elif xD
