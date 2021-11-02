@@ -13,9 +13,11 @@ def main():
     except Exception as error:
         print('ERROR', error)
     while 1:
-        c = input(bcolors.OKGREEN+bcolors.BOLD+str(user)+"@Troya"
+        c = input(bcolors.OKGREEN+bcolors.BOLD+str(user)+"@"
         +socket.gethostname()+bcolors.ENDC+":"+bcolors.HEADER+str(os.getcwd())+bcolors.ENDC+"$ ")
-
+        c = c.split()
+        print(c)
+        
     return 0
 
 # la idea es usar un diccionario asi no tengo que usar estos if-elif xD
