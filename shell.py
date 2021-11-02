@@ -5,7 +5,7 @@ from resources import bcolors
 import getpass
 
 def main():
-    foundCommand = False
+    #foundCommand = False
     #print(f.readlines())
     try:
         user = getpass.getuser()
@@ -16,7 +16,8 @@ def main():
         c = input(bcolors.OKGREEN+bcolors.BOLD+str(user)+"@"
         +socket.gethostname()+bcolors.ENDC+":"+bcolors.HEADER+str(os.getcwd())+bcolors.ENDC+"$ ")
         c = c.split()
-        print(c)
+        caller(c)
+                
         
     return 0
 
