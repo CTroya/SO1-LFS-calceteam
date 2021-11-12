@@ -9,7 +9,7 @@ def main():
     #print(f.readlines())
     try:
         user = getpass.getuser()
-        password = getpass.getpass()
+        #password = getpass.getpass()
     except Exception as error:
         print('ERROR', error)
     while 1:
