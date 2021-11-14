@@ -12,6 +12,7 @@ import shutil
     #Investigar/preguntar acerca de los error logs
     
 """
+#fasdfafdd
 def ls(command):
     argc = len(command) - 1
     if argc == 0:
