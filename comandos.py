@@ -5,6 +5,7 @@ import shutil
     Para que caller interactue de manera correcta con las funciones que deseen añadir
     Deben tener unicamente como parametro a command, esta es una lista que utiliza caller
     contiene todos los tokens incluidos por el comando.
+    hola que tal?
 
 
     PD: TENGO QUE CAMBIAR LOS ERROR PRINTS JAJAJAJJA
