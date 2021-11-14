@@ -1,4 +1,5 @@
 import os
+from posix import listdir
 import subprocess
 import shutil
 """
@@ -7,10 +8,22 @@ import shutil
     contiene todos los tokens incluidos por el comando.
     hola que tal?
 
-
     PD: TENGO QUE CAMBIAR LOS ERROR PRINTS JAJAJAJJA
+    #Investigar/preguntar acerca de los error logs
+    
 """
+def ls(command):
+    argc = len(command) - 1
+    if argc == 0:
+        argc = os.listdir(os.path.join(os.getcwd()))
+    else:
+        print(command[1])
+        #argc = os.listdir(os.path.join(os.getcwd(),command[1]))
+        argc = os.listdir(os.path.join(os.getcwd(),os.path.abspath(command[1])))
 
+    print(*argc,sep ="      ")
+    return 0
+    
 def clear(command):
     print("\033[H\033[J", end="")
     return 0
@@ -21,6 +34,7 @@ def cd(command):
     except:
         print("ERROR: Not a valid path")
     return 0
+
 def cp(command):
     #command[1] es el directorio de origen del archivo que queremos mover (creo que solo nombre de archivo (?))
     #command[2] es el el directorio de destino del archivo
@@ -32,6 +46,7 @@ def cp(command):
     except:
         print("Pero que bobito no sabe usar el comando xD")
     return 0
+
 def mv(command):
     #command[1] es el directorio de origen del archivo que queremos mover (creo que solo nombre de archivo (?))
     #command[2] es el el directorio de destino del archivo
@@ -43,19 +58,37 @@ def mv(command):
     except:
         print("Pero que bobito no sabe usar el comando xD")
     return 0
+
 def pmod(command):
     try:
         os.chmod(command[0],int(command[1],8))
-        print(f"{command[0]}permisos cambiados")
+        print(f"{command[0]} permissions changed")
     except OSError:
             print("ERROR: Not a valid path")
-    except Exception as e:
-        print("Error: Type \"pmod --help for more information\"") #
+    except Exception:
+        print("Error: Type \"pmod --help for more information\"")
+    return 0
+def mkdir(command):
+    if len(command) == 0:
+        print(f"crearDir: no directory specified")
+        return 1
+    if os.path.exists(os.path.join(os.getcwd(),command[1])):
+        print(f"crearDir: cannot create directory ‘{command[1]}’: File exists")
+    else:
+        os.mkdir(os.path.join(os.getcwd(),command[1]))
+    return 0
+def rename(command):
+    if len(command) < 2:
+        print("rename: missing operand")
+        return 1
+    else:
+        os.rename(os.path.join(os.getcwd(),command[1]),os.path.join(os.getcwd(),command[2]))
+        
     return 0
 
-commandFunction = [cd,cp,clear,pmod,mv]
-commandList = ["ir", "copiar", "limpiar","pmod","mover"]
-argNumber = [1,2,0,2,2]
+commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename]
+commandList = ["ir", "copiar", "limpiar","cpermi","mover","listar","crearDir","renombrar"]
+argNumber = [1,2,0,2,2,1,1,2]#cantidad maxima de argumentos
 
 def caller(command):
     out = 'ERROR'
@@ -68,7 +101,7 @@ def caller(command):
                 foundCommand = True
     if(foundCommand):
         for i in range(commandCounter):
-            if(command[0] == commandList[i] and argc == argNumber[i]):
+            if(command[0] == commandList[i] and argc <= argNumber[i]):
                 commandFunction[i](command)
     else:
         try:

@@ -17,7 +17,7 @@ def main():
         +socket.gethostname()+bcolors.ENDC+":"+bcolors.HEADER+str(os.getcwd())+bcolors.ENDC+"$ ")
         c = c.split()
         caller(c)
-                
+        
         
     return 0
 
