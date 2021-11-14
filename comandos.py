@@ -82,7 +82,7 @@ def rename(command):
         return 1
     else:
         os.rename(os.path.join(os.getcwd(),command[1]),os.path.join(os.getcwd(),command[2]))
-
+        
     return 0
 
 commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename]
