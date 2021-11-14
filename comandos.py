@@ -12,7 +12,7 @@ import shutil
     #Investigar/preguntar acerca de los error logs
     
 """
-#fasdfafdd
+#Funcion listar
 def ls(command):
     argc = len(command) - 1
     if argc == 0:
@@ -24,7 +24,7 @@ def ls(command):
 
     print(*argc,sep ="      ")
     return 0
-    
+#Funcion limpiar terminal
 def clear(command):
     print("\033[H\033[J", end="")
     return 0
