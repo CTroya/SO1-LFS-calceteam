@@ -3,16 +3,13 @@ import socket
 from comandos import *
 from resources import bcolors
 import getpass
-
+user = getpass.getuser()
 def main():
     #foundCommand = False
     #print(f.readlines())
-    try:
-        user = getpass.getuser()
-        #password = getpass.getpass()
-    except Exception as error:
-        print('ERROR', error)
+    
     while 1:
+        user = getpass.getuser()
         c = input(bcolors.OKGREEN+bcolors.BOLD+str(user)+"@"
         +socket.gethostname()+bcolors.ENDC+":"+bcolors.HEADER+str(os.getcwd())+bcolors.ENDC+"$ ")
         c = c.split()
