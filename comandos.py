@@ -10,6 +10,7 @@ import hashlib
     Para que caller interactue de manera correcta con las funciones que deseen añadir
     Deben tener unicamente como parametro a command, esta es una lista que utiliza caller
     contiene todos los tokens incluidos por el comando.
+    hola que tal?
 
     PD: TENGO QUE CAMBIAR LOS ERROR PRINTS JAJAJAJJA
     #Investigar/preguntar acerca de los error logs
@@ -20,6 +21,7 @@ import hashlib
     directorios del usuario
     /skel
 """
+<<<<<<< HEAD
 def adduser(command):
     if shell.user != 'root': 
         print("ERROR: You dont posses the required permissions to execute this command")
@@ -70,6 +72,9 @@ def adduser(command):
     return 0
 
 
+=======
+#Funcion listar
+>>>>>>> 770c09afb76196fb47cdf3bac43831a26afb00ea
 def ls(command):
     argc = len(command) - 1
     if argc == 0:
@@ -81,7 +86,7 @@ def ls(command):
 
     print(*argc,sep ="      ")
     return 0
-    
+#Funcion limpiar terminal
 def clear(command):
     print("\033[H\033[J", end="")
     return 0
