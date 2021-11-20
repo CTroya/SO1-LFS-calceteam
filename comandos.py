@@ -10,9 +10,7 @@ import psutil
 import time
 import sys
 
-idloco=42069
-idPadre=0
-idHijo=0
+
 """
     Para que caller interactue de manera correcta con las funciones que deseen añadir
     Deben tener unicamente como parametro a command, esta es una lista que utiliza caller
@@ -210,47 +208,20 @@ def ftp():
     return 0
 def chown():
     return 0
-
-def run_deploy():
-    idPadre=os.getpid()
-    print("Padre:",idPadre)
-    idloco = os.fork()
-    print(idloco)
-
-
-    print(idloco)
-    if idloco > 0:
-        print("Padre de nuevo",os.getpid()) 
-    else:
-        idHijo=os.getpid()
-        print("Hijo",idHijo)        
-        euid = os.geteuid()
-        if euid != 0:
-            print ("Script not started as root. Running sudo..")
-            args = ['sudo1', sys.executable] + sys.argv + [os.environ]
-        # the next line replaces the currently-running process with the sudo
-            os.execlpe('sudo', *args)
-            
-            
+          
 
 def root(command):
-    #args = ['sudo', sys.executable] + sys.argv + [os.environ]
-    #os.execlpe('sudo', * args)
-    run_deploy()
-    return 0
-
-def exitT(command):
-    pidx=os.getpid()
     
-    if idloco>0:
-        print("el padre no puede morir")
-    else:
-        print("suicidio del hijo")
-        os.kill(idHijo,9)
-        sys.exit()
-        
-    #os._exit(os.EX_OK)
-    #subprocess.run("exit 0", shell=True, check=True)
+    #es una herramienta que usaremos mas tarde V:
+    #args = ['sudo', sys.executable] + sys.argv + [os.environ]
+ 
+    print(sys.executable)
+    proc = subprocess.call(['sudo',sys.executable,'shell.py'])
+
+    return 0
+    
+def exitT(command):
+    sys.exit()
     return 0
 
 commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,passwd,uptime,cat,startstopDaemon,ftp,chown,root,exitT]
@@ -265,7 +236,7 @@ def caller(command):
     argc = len(command) - 1
     
     commandCounter = len(commandFunction)
-    #print(f"commandFunctionLen: {len(commandFunction)}")
+    #print(f"commandFunctionLen: {len(commandFunction)}") #PARA DEBUG
     #print(f"commandListLen: {len(commandList)}")
     #print(f"argNumberLen: {len(argNumber)}")
     #print(f"argc: {argc}")
