@@ -1,3 +1,4 @@
+from genericpath import isdir
 import os
 from posix import listdir
 import subprocess
@@ -101,10 +102,14 @@ def cp(command):
     origin = os.path.join(os.getcwd(),command[1])
     destiny = os.path.join(os.getcwd(),command[2])
     try:
-        shutil.copy(os.path.join(command[1]),os.path.join(command[2]))
-        print(f"Se movio {command[1]} a {command[2]}")
+        if isdir(origin):
+            shutil.copytree(os.path.join(command[1]),os.path.join(command[2]))
+            print(f"Se copió la carpeta {command[1]} a {command[2]}")
+        else:        
+            shutil.copy(os.path.join(command[1]),os.path.join(command[2]))
+            print(f"Se copio el archivo {command[1]} a {command[2]}")
     except:
-        print("Pero que bobito no sabe usar el comando xD")
+        print("Error:No se pudo realizar la copia")
     return 0
 
 def mv(command):
