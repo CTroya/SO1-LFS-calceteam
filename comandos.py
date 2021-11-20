@@ -45,8 +45,8 @@ def adduser(command):
     shadowPath = os.path.join(os.getcwd(),"shadow")
     passwdPath = os.path.join(os.getcwd(),"passwd")
     
-    shadow = open("shadow","r+")
-    passwd = open("passwd","r+")
+    shadow = open("shadow","a+")
+    passwd = open("passwd","a+")
     #desde este punto las variables passwd y shadow se vuelven vectores de cadenas
     with open(passwdPath) as file:
         passwd = file.readlines()
@@ -67,6 +67,8 @@ def adduser(command):
         if group[i][0] == userName:
             print(f"{userName} already exists. Exiting...")
             return 1
+    for i in range(len(shadow)):
+        print(shadow[i])
     while check != userPassword:
         userPassword = getpass.getpass("Create password: ")
         check = getpass.getpass("Verify your password: ")
@@ -241,39 +243,3 @@ def caller(command):
         except:
             print(out)
     return 0
-
-
-"""
-def mv(command):
-    #command[1] es el directorio de origen del archivo que queremos mover (creo que solo nombre de archivo (?))
-    #command[2] es el el directorio de destino del archivo
-    try:
-        shutil.move(os.path.join(command[1]),os.path.join(command[2]))
-        print(f"Se movio {command[1]} a {command[2]}")
-    except:
-        print("Pero que bobito no sabe usar el comando xD")
-    return 0
-
-
-def mv(command): #tal vez tenga que cambiar el planteamiento
-    origin=command[1]
-    destiny = command[2]
-    a = 0
-    if os.path.exists(destiny):
-        a = input(f"La direccion de destino: {destiny} ya existe, quieres sobreescribir el archivo? ('yes' para continuar)")
-        if a != "yes":
-            return 0
-    try:
-        if os.path.exists(os.path.join(origin,destiny)):
-            originFile = open(origin,"rb")
-            destinyFile = open(destiny,"wb")
-            destinyFile.write(originFile.read())
-            destinyFile.close()
-            originFile.close()
-            os.remove(originFile)
-            print(f"El archivo {origin} se movio a {destiny}")
-    except:
-        print("F")
-    return 0
-
-"""
