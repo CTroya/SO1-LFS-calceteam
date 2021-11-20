@@ -3,7 +3,6 @@ import os
 from posix import listdir
 import subprocess
 import shutil
-from Crypto.Cipher import DES
 import shell
 import getpass
 import hashlib
@@ -200,11 +199,15 @@ def cat(command):
     else:
         print("Error no es un archivo")
     return 0
-
-
-commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,passwd,uptime,cat]
-commandList = ["ir", "copiar", "limpiar","cpermi","mover","listar","crearDir","renombrar","addUsuario","contrasena","tiempoOn","concatenar"]
-argNumber = [1,2,0,1,2,1,1,2,1,1,0,1]
+def startstopDaemon():
+    return 0
+def ftp():
+    return 0
+def chown():
+    return 0
+commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,passwd,uptime,cat,startstopDaemon,ftp,chown]
+commandList = ["ir", "copiar", "limpiar","permisos","mover","listar","crearDir","renombrar","addUsuario","contrasena","tiempoOn","concatenar","controlSys","clientFtp","propietario"]
+argNumber = [[1],[2],[0],[1],[2],[1,0],[1],[2],[1],[1],[0],[1],[],[],[]]
 #cantidad maxima de argumentos
 
 def caller(command):
@@ -212,16 +215,22 @@ def caller(command):
     out = 'ERROR: command not found or subprocess failed'
     foundCommand = False
     argc = len(command) - 1
-    #print(f"argc: {argc}")
+    
     commandCounter = len(commandFunction)
+    #print(f"commandFunctionLen: {len(commandFunction)}")
+    #print(f"commandListLen: {len(commandList)}")
+    #print(f"argNumberLen: {len(argNumber)}")
+    #print(f"argc: {argc}")
     for i in commandList:
             if(command[0] == i):
                 foundCommand = True
     if(foundCommand):
         for i in range(commandCounter):
-            if(command[0] == commandList[i] and argc <= argNumber[i]):
-                commandFunction[i](command)
-                argErrorFlag = False
+                for j in range(len(argNumber[i])):
+                    print(f"{i} {j}")
+                    if(command[0] == commandList[i] and argc == argNumber[i][j]):
+                        commandFunction[i](command)
+                        argErrorFlag = False
         if argErrorFlag: print("ERROR: argument quantity mismatch")
     else:
         #print(command) 
