@@ -1,4 +1,4 @@
-from genericpath import isdir
+from genericpath import isdir, isfile
 import os
 from posix import listdir
 import subprocess
@@ -7,6 +7,10 @@ from Crypto.Cipher import DES
 import shell
 import getpass
 import hashlib
+import psutil
+import time
+import sys
+
 """
     Para que caller interactue de manera correcta con las funciones que deseen añadir
     Deben tener unicamente como parametro a command, esta es una lista que utiliza caller
@@ -87,14 +91,19 @@ def ls(command):
 def clear(command):
     print("\033[H\033[J", end="")
     return 0
+
+#NUEVO MOD    
 def cd(command):
     if len(command)-1 !=  1: return 0
     path = command[1]
     try:
-        os.chdir(path)
+        print(os.path.abspath(path))
+        os.chdir(os.path.abspath(path))
     except:
         print("ERROR: Not a valid path")
     return 0
+
+#NUEVO MOD    
 def cp(command):
     if len(command)-1 !=  2: return 1
     #command[1] es el directorio de origen del archivo que queremos mover (creo que solo nombre de archivo (?))
@@ -126,6 +135,7 @@ def mv(command):
     return 0
 
 def pmod(command):
+    print(command)
     if len(command)-1 !=  2: return 0
     try:
         os.chmod(command[0],333)
@@ -135,6 +145,7 @@ def pmod(command):
     except Exception:
         print("Error: Type \"pmod --help for more information\"")
     return 0
+    
 def mkdir(command):
     if len(command) == 0:
         print(f"crearDir: no directory specified")
@@ -153,9 +164,47 @@ def rename(command):
         os.rename(os.path.join(os.getcwd(),command[1]),os.path.join(os.getcwd(),command[2]))
     return 0
 
-commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser]
-commandList = ["ir", "copiar", "limpiar","cpermi","mover","listar","crearDir","renombrar","addUsuario"]
-argNumber = [1,2,0,1,2,1,1,2,1]
+
+
+#NUEVO
+def passwd(command):
+
+    return 0
+
+
+#NUEVO
+def uptime(command):
+    print(time.strftime("%H:%M:%S", time.gmtime()))    
+    print(time.strftime("%Hh%Mm", time.gmtime(round(time.time()-psutil.boot_time()))))
+    print("Carga promedio:",[str(x) for x in os.getloadavg()])
+    #    /var/run/utmp
+    return 0
+
+
+
+#NUEVO
+def cat(command):
+    print(command[1])
+    archivo=os.path.abspath(command[1])
+    if isfile(archivo):
+        try:
+            fd = os.open(archivo, os.O_RDONLY)
+            data = os.read(fd, 4096)
+            if len(data) == 0:
+                print("Archivo Vacio")
+                return 0
+            os.close(fd)
+            os.write(sys.stdout.fileno(), data)
+        except:
+            print("Error al abrir el archivo")
+    else:
+        print("Error no es un archivo")
+    return 0
+
+
+commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,passwd,uptime,cat]
+commandList = ["ir", "copiar", "limpiar","cpermi","mover","listar","crearDir","renombrar","addUsuario","contrasena","tiempoOn","concatenar"]
+argNumber = [1,2,0,1,2,1,1,2,1,1,0,1]
 #cantidad maxima de argumentos
 
 def caller(command):
@@ -175,13 +224,18 @@ def caller(command):
                 argErrorFlag = False
         if argErrorFlag: print("ERROR: argument quantity mismatch")
     else:
+        #print(command) 
         try:
-            out=subprocess.run(command)
+            if command[0]=="cd":
+                cd(command)
+            else:
+                out=subprocess.run(command) #passthrough
+                print("passtrhough ok")
         except:
             print(out)
     return 0
 
-#FER
+
 """
 def mv(command):
     #command[1] es el directorio de origen del archivo que queremos mover (creo que solo nombre de archivo (?))
