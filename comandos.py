@@ -227,7 +227,6 @@ def caller(command):
     if(foundCommand):
         for i in range(commandCounter):
                 for j in range(len(argNumber[i])):
-                    print(f"{i} {j}")
                     if(command[0] == commandList[i] and argc == argNumber[i][j]):
                         commandFunction[i](command)
                         argErrorFlag = False
@@ -239,7 +238,6 @@ def caller(command):
                 cd(command)
             else:
                 out=subprocess.run(command) #passthrough
-                print("passtrhough ok")
         except:
             print(out)
     return 0
