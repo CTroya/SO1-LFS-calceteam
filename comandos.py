@@ -205,9 +205,22 @@ def ftp():
     return 0
 def chown():
     return 0
-commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,passwd,uptime,cat,startstopDaemon,ftp,chown]
-commandList = ["ir", "copiar", "limpiar","permisos","mover","listar","crearDir","renombrar","addUsuario","contrasena","tiempoOn","concatenar","controlSys","clientFtp","propietario"]
-argNumber = [[1],[2],[0],[1],[2],[1,0],[1],[2],[1],[1],[0],[1],[],[],[]]
+
+
+
+def root(command):
+    args = ['sudo', sys.executable] + sys.argv + [os.environ]
+    os.execlpe('sudo', * args)
+    return 0
+
+def exitT(command):
+    #sys.exit()
+    os._exit(os.EX_OK)
+    return 0
+
+commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,passwd,uptime,cat,startstopDaemon,ftp,chown,root,exitT]
+commandList = ["ir", "copiar", "limpiar","permisos","mover","listar","crearDir","renombrar","addUsuario","contrasena","tiempoOn","concatenar","controlSys","clientFtp","propietario","super","salir"]
+argNumber = [[1],[2],[0],[1],[2],[1,0],[1],[2],[1],[1],[0],[1],[],[],[],[0],[0]]
 #cantidad maxima de argumentos
 
 def caller(command):

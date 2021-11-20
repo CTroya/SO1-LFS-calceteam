@@ -11,13 +11,14 @@ def main():
 
     #NUEVO MOD
     while 1:
+
         user = getpass.getuser()
         c = input(bcolors.OKGREEN+bcolors.BOLD+str(user)+"@"
         +socket.gethostname()+bcolors.ENDC+":"+bcolors.HEADER+str(os.getcwd())+bcolors.ENDC+"$ ")
         #print(c) #Debug
         c = c.split(" ")
         caller(c)
-        
+
         
     return 0
 
