@@ -10,6 +10,8 @@ import hashlib
 import psutil
 import time
 import sys
+import resources
+from time import time
 
 from ftplib import FTP
 
@@ -44,6 +46,7 @@ def adduser(command):
     #vamos a crear una copia de los archivos para no cagarla despues xD
     shutil.copy(shadowPath,os.getcwd())
     shutil.copy(passwdPath,os.getcwd())
+    shutil.copy(groupPath,os.getcwd())
 
     shadowPath = os.path.join(os.getcwd(),"shadow")
     passwdPath = os.path.join(os.getcwd(),"passwd")
@@ -65,17 +68,19 @@ def adduser(command):
     for i in range(len(shadow)):
         shadow[i] = shadow[i].split(':')
     for i in range(len(group)):
-        group[i] = group[i].split(':')
-    for i in range(len(group)):
         if group[i][0] == userName:
             print(f"{userName} already exists. Exiting...")
             return 1
-    for i in range(len(shadow)):
-        print(shadow[i])
-    while check != userPassword:
-        userPassword = getpass.getpass("Create password: ")
-        check = getpass.getpass("Verify your password: ")
-    userPassword = hashlib.sha512(str(userPassword).encode('UTF-8')).hexdigest()
+    userID = resources.getNewUserID()
+    groupID = resources.getNewGroupID()
+    homePath = f"/home/{userName}"
+    os.mkdir(homePath,int(755,8))
+    passwd = open("passwd","a+")
+    shadow = open("shadow","a+")
+    group = open("group","a+")
+    passwd.write(f"{userName}:!:{userID}:{groupID}:xd,,,:{homePath}:/bin/bash")
+    shadow.write(f"{userName}:!:{int(time()/86400)}:0:99999:7:::")
+    group.write(f"{userName}:x:{groupID}")
     print(userPassword)
     return 0
 
