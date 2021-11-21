@@ -30,7 +30,7 @@ from ftplib import FTP
     directorios del usuario
     /skel
     /var/log/shell/sistema_error.log
-    
+    dht basura
 """
 def adduser(command):
     if shell.user != 'root': 
