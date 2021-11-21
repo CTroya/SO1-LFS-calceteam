@@ -9,7 +9,7 @@ import hashlib
 import psutil
 import time
 import sys
-
+#ups
 
 """
     Para que caller interactue de manera correcta con las funciones que deseen añadir
