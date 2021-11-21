@@ -24,7 +24,6 @@ def getNewUserID():#requiere root
         userID = 0
         if userID < int(passwd[i][2]):
             userID = int(passwd[i][2]) + 1
-    os.remove(passwdPath)
     return userID
 def getNewGroupID():#requiere root
     groupPath = "/etc/group"
