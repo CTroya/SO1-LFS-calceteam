@@ -29,6 +29,8 @@ from ftplib import FTP
     group
     directorios del usuario
     /skel
+    /var/log/shell/sistema_error.log
+    
 """
 def adduser(command):
     if shell.user != 'root': 
@@ -74,7 +76,7 @@ def adduser(command):
     userID = resources.getNewUserID()
     groupID = resources.getNewGroupID()
     homePath = f"/home/{userName}"
-    os.mkdir(homePath,int(755,8))
+    os.mkdir(homePath,int('755',8))
     passwd = open("passwd","a+")
     shadow = open("shadow","a+")
     group = open("group","a+")
