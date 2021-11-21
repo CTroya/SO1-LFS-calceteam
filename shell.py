@@ -3,6 +3,8 @@ import socket
 from comandos import *
 from resources import bcolors
 import getpass
+import rlcompleter, readline
+readline.parse_and_bind("tab: complete")
 user = getpass.getuser()
 def main():
     #foundCommand = False
