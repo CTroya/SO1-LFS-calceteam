@@ -10,7 +10,8 @@ import hashlib
 import psutil
 import time
 import sys
- 
+
+from ftplib import FTP
 
 """
     Para que caller interactue de manera correcta con las funciones que deseen añadir
@@ -206,8 +207,58 @@ def cat(command):
 
 def startstopDaemon():
     return 0
-def ftp():
-    return 0
+
+
+def ftp(command):
+    conectado=False
+    ftp = FTP()
+    usuario=input("Usuario:")
+    contrase=input("Pass:")
+    #Se espera cmd iphost user password
+    try:
+        ftp.connect("127.0.0.1",21)
+        print("conect")
+        ftp.login(usuario,contrase)
+        print(ftp.getwelcome())
+        conectado=True
+    except Exception as er:
+        print(er)
+    while conectado:
+        cmd=input("ftp> ")
+        if cmd == "listar":
+            ftp.dir()
+        elif cmd == "salir":
+            conectado=False
+        elif cmd == "limpiar":
+            print("\033[H\033[J", end="")
+        elif cmd == "directorio":
+            print(ftp.pwd())
+        elif "descargar " in cmd:
+            cmd = cmd[10:]
+            try:
+                archivos=ftp.nlst()
+            except Exception as er:
+                print(er)
+                break
+            if cmd in archivos:
+                #descargar archivo
+                print("Descargando el archivo "+cmd)
+                try:
+                    ftp.retrbinary("RETR " + cmd ,open(cmd, 'wb').write)
+                except:
+                    print("Error al descargar el archivo")
+            else:
+                print("Error no se encuentra el archivo")
+        else:
+            print("Error: "+cmd+" no valido")
+    
+    try:
+        ftp.quit()
+    except Exception as er1:
+        print(er1)
+
+
+
 def chown(command):
 
     #formato cmd user file
@@ -216,11 +267,9 @@ def chown(command):
     try:
         #Verificar si existe el usuario que se pasa
        shutil.chown(archivo,command[1],command[1])
-    except:
-        if archivo.owner()=="root":
-            print("No se tiene los permisos de root")
-        else:
-            print("Error no se pudo cambiar los permisos del archivo")
+    except Exception as er:       
+        print(er)
+
 
     return 0
           
@@ -242,7 +291,7 @@ def exitT(command):
 
 commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,passwd,uptime,cat,startstopDaemon,ftp,chown,root,exitT]
 commandList = ["ir", "copiar", "limpiar","permisos","mover","listar","crearDir","renombrar","addUsuario","contrasena","tiempoOn","concatenar","controlSys","clientFtp","propietario","super","salir"]
-argNumber = [[1],[2],[0],[1],[2],[1,0],[1],[2],[1],[1],[0],[1],[],[],[2],[0],[0]]
+argNumber = [[1],[2],[0],[1],[2],[1,0],[1],[2],[1],[1],[0],[1],[],[0],[2],[0],[0]]
 #cantidad maxima de argumentos
 
 def caller(command):
