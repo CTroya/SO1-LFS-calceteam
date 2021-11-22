@@ -10,15 +10,25 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+    
+def processText(text):
+    processedText = text
+    for i in range(len(text)):
+        processedText[i] = processedText[i].split(':')
+    return processedText
+
+def readFile(filename):
+    with open(filename) as file:
+        lines = file.readlines() 
+        lines = [line.rstrip() for line in lines]
+    print(lines)
+    return lines
 
 def getNewUserID():#requiere root
     passwdPath = "/etc/passwd"
     passwd = open(passwdPath,"r")
     userID = 0
-    #desde este punto las variables passwd y shadow se vuelven vectores de cadenas
-    with open(passwdPath) as file:
-        passwd = file.readlines()
-        passwd = [passwd.rstrip() for passwd in passwd]       
+    passwd = readFile(passwdPath)      
     for i in range(len(passwd)):
         passwd[i] = passwd[i].split(':')
     for i in range(len(passwd)):
