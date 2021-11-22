@@ -9,8 +9,6 @@ user = getpass.getuser()
 def main():
     #foundCommand = False
     #print(f.readlines())
-    
-
     #NUEVO MOD
     while 1:
         user = getpass.getuser()

@@ -37,5 +37,3 @@ def getNewGroupID():#requiere root
         if groupID < int(group[i][2]):
             groupID = int(group[i][2]) + 1
     return groupID
-print(getNewGroupID())
-print(getNewUserID())

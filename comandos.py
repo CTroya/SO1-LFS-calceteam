@@ -50,11 +50,11 @@ def adduser(command):
     shutil.copy(passwdPath,os.getcwd())
     shutil.copy(groupPath,os.getcwd())
 
-    shadowPath = os.path.join(os.getcwd(),"shadow")
-    passwdPath = os.path.join(os.getcwd(),"passwd")
+    #shadowPath = os.path.join(os.getcwd(),"shadow")
+    #passwdPath = os.path.join(os.getcwd(),"passwd")
     
-    shadow = open("shadow","a+")
-    passwd = open("passwd","a+")
+    #shadow = open("shadow","a+")
+    #passwd = open("passwd","a+")
     #desde este punto las variables passwd y shadow se vuelven vectores de cadenas
     with open(passwdPath) as file:
         passwd = file.readlines()
@@ -77,13 +77,12 @@ def adduser(command):
     groupID = resources.getNewGroupID()
     homePath = f"/home/{userName}"
     os.mkdir(homePath,int('755',8))
-    passwd = open("passwd","a+")
-    shadow = open("shadow","a+")
-    group = open("group","a+")
+    passwd = open(passwdPath,"a+")
+    shadow = open(shadowPath,"a+")
+    group = open(groupPath,"a+")
     passwd.write(f"{userName}:!:{userID}:{groupID}:xd,,,:{homePath}:/bin/bash")
     shadow.write(f"{userName}:!:{int(time()/86400)}:0:99999:7:::")
-    group.write(f"{userName}:x:{groupID}")
-    print(userPassword)
+    group.write(f"{userName}:x:{groupID}:")
     return 0
 
 
