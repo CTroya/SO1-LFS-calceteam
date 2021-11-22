@@ -23,8 +23,8 @@ def getNewUserID():#requiere root
         passwd[i] = passwd[i].split(':')
     for i in range(len(passwd)):
         if userID < int(passwd[i][2]):
-            userID = int(passwd[i][2]) + 1  
-    return userID
+            userID = int(passwd[i][2])
+    return userID + 1
 def getNewGroupID():#requiere root
     groupPath = "/etc/group"
     groupID = 0
@@ -35,5 +35,5 @@ def getNewGroupID():#requiere root
         group[i] = group[i].split(':')
     for i in range(len(group)):
         if groupID < int(group[i][2]):
-            groupID = int(group[i][2]) + 1
-    return groupID
+            groupID = int(group[i][2])
+    return groupID + 1

@@ -80,9 +80,9 @@ def adduser(command):
     passwd = open(passwdPath,"a+")
     shadow = open(shadowPath,"a+")
     group = open(groupPath,"a+")
-    passwd.write(f"{userName}:!:{userID}:{groupID}:xd,,,:{homePath}:/bin/bash")
-    shadow.write(f"{userName}:!:{int(time()/86400)}:0:99999:7:::")
-    group.write(f"{userName}:x:{groupID}:")
+    passwd.write(f"{userName}:!:{userID}:{groupID}:xd,,,:{homePath}:/bin/bash\n")
+    shadow.write(f"{userName}:!:{int(time()/86400)}:0:99999:7:::\n")
+    group.write(f"{userName}:x:{groupID}:\n")
     return 0
 
 
