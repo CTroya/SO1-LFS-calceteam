@@ -1,5 +1,4 @@
-import shutil
-import os
+import random
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -10,7 +9,13 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-    
+
+def getSalt():
+    ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    chars=[]
+    for i in range(16):
+        chars.append(random.choice(ALPHABET))
+    return "".join(chars)
 def processText(text):
     processedText = text
     for i in range(len(text)):
@@ -21,7 +26,6 @@ def readFile(filename):
     with open(filename) as file:
         lines = file.readlines() 
         lines = [line.rstrip() for line in lines]
-    print(lines)
     return lines
 
 def getNewUserID():#requiere root

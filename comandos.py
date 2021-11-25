@@ -15,6 +15,34 @@ from time import time
 import getpass
 from ftplib import FTP
 
+def password(command):
+    if os.getuid() != 0: return 1
+    paths = ["/etc/shadow","/etc/passwd"]
+    userName = input("keusuariokerescambiarXDDD: ")
+    userColumnShadow = 0
+    userColumnPasswd = 0
+    #0:shadow 1:passwd
+    fileTexts = [[0,0],[0,0]]
+    #0:readlines 1:processedTexts
+    for i in range(2):
+        fileTexts[i][0] = resources.readFile(paths[i])
+        fileTexts[i][1] = resources.processText(fileTexts[i][0])
+    for i in range(len(fileTexts[0][1])):
+        if fileTexts[0][1][i][0] == userName:
+            userColumnShadow = i
+    for i in range(len(fileTexts[1][1])):
+        #print(fileTexts[1][1][i][0])
+        if fileTexts[1][1][i][0] == userName:
+            userColumnPasswd = i
+    if userColumnShadow == 0 or userColumnPasswd == 0:
+        print("kp no existis :v")
+    userPassword = getpass.getpass()
+    newHash = f"$6${hashlib.sha512(str(userPassword).encode('utf-8')).hexdigest()}"
+    
+    print(fileTexts[0][1][userColumnShadow][1])
+    print(newHash)
+    
+    return 0
 
 def adduser(command):
     if getpass.getuser() != 'root': 
@@ -46,6 +74,7 @@ def adduser(command):
     files[0].write(f"{userName}:!:{int(time()/86400)}:0:99999:7:::\n")
     files[1].write(f"{userName}:!:{userID}:{groupID}:xd,,,:{homePath}:/bin/bash\n")
     files[2].write(f"{userName}:x:{groupID}:\n")
+    print(f"Se añadio el usuario {userName} al sistema")
     return 0
 def ls(command):
     argc = len(command) - 1
@@ -126,12 +155,6 @@ def rename(command):
         os.rename(os.path.join(os.getcwd(),command[1]),os.path.join(os.getcwd(),command[2]))
     return 0
 #NUEVO
-def passwd(command):
-    shadowPath = "/etc/shadow"
-    passwdPath = "/etc/passwd"
-    groupPath = "/etc/group"
-    return 0
-#NUEVO
 def uptime(command):
     print(time.strftime("%H:%M:%S", time.gmtime()))    
     print(time.strftime("%Hh%Mm", time.gmtime(round(time.time()-psutil.boot_time()))))
@@ -206,7 +229,6 @@ def ftp(command):
         print(er1)
 
 def chown(command):
-
     #formato cmd user file
     archivo=Path(command[2])
     #COmprobar si existe el archivo o directorio
@@ -215,32 +237,30 @@ def chown(command):
        shutil.chown(archivo,command[1],command[1])
     except Exception as er:       
         print(er)
-
-
     return 0
           
 def root(command):
+    
     #es una herramienta que usaremos mas tarde V:
     #args = ['sudo', sys.executable] + sys.argv + [os.environ]
     file_path = os.path.dirname(__file__)
 
-    print(file_path)
+    #print(file_path)
     proc = subprocess.call(['sudo',sys.executable,file_path+"/shell.py"])
 
     return 0
-    
 def exitT(command):
     sys.exit()
     return 0
 
-commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,passwd,uptime,cat,startstopDaemon,ftp,chown,root,exitT]
+commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,password,uptime,cat,startstopDaemon,ftp,chown,root,exitT]
 commandList = ["ir", "copiar", "limpiar","permisos","mover","listar","crearDir","renombrar","addUsuario","contrasena","tiempoOn","concatenar","controlSys","clientFtp","propietario","super","salir"]
 argNumber = [[1],[2],[0],[1],[2],[1,0],[1],[2],[1],[1],[0],[1],[],[0],[2],[0],[0]]
 #cantidad maxima de argumentos
 
 def caller(command):
     argErrorFlag = True #Solo se activa si la cantidad de parametros es incorrecta
-    out = 'ERROR: command not found or subprocess failed'
+    out = resources.bcolors.FAIL+'ERROR:'+resources.bcolors.WARNING+'command not found or subprocess failed'+resources.bcolors.ENDC
     foundCommand = False
     argc = len(command) - 1
     
@@ -258,7 +278,7 @@ def caller(command):
                     if(command[0] == commandList[i] and argc == argNumber[i][j]):
                         commandFunction[i](command)
                         argErrorFlag = False
-        if argErrorFlag: print("ERROR: argument quantity mismatch")
+        if argErrorFlag: print(resources.bcolors.FAIL+"ERROR: argument quantity mismatch"+resources.bcolors.ENDC)
     else:
         #print(command) 
         try:
