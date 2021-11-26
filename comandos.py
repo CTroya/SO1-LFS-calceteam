@@ -22,24 +22,30 @@ def password(command):
     userColumnShadow = 0
     userColumnPasswd = 0
     #0:shadow 1:passwd
-    fileTexts = [[0,0],[0,0]]
+    fileStrings = [0,0]
+    fileAttributes = [0,0]
     #0:readlines 1:processedTexts
+    #print(fileStrings[0])
+    shutil.copy(paths[0],os.getcwd())
+    shutil.copy(paths[1],os,os.getcwd())
     for i in range(2):
-        fileTexts[i][0] = resources.readFile(paths[i])
-        fileTexts[i][1] = resources.processText(fileTexts[i][0])
-    for i in range(len(fileTexts[0][1])):
-        if fileTexts[0][1][i][0] == userName:
+        fileStrings[i] = resources.readFile(paths[i])
+        fileAttributes[i] = resources.processText(fileStrings[i])
+    for i in range(len(fileAttributes[0])):
+        if fileAttributes[0][i][0] == userName:
             userColumnShadow = i
-    for i in range(len(fileTexts[1][1])):
+    for i in range(len(fileAttributes[1])):
         #print(fileTexts[1][1][i][0])
-        if fileTexts[1][1][i][0] == userName:
+        if fileAttributes[1][i][0] == userName:
             userColumnPasswd = i
     if userColumnShadow == 0 or userColumnPasswd == 0:
         print("kp no existis :v")
+        return 1
     userPassword = getpass.getpass()
     newHash = f"$6${hashlib.sha512(str(userPassword).encode('utf-8')).hexdigest()}"
-    
-    print(fileTexts[0][1][userColumnShadow][1])
+    fileAttributes[0][userColumnShadow] = f"{userName}:{newHash}:{fileAttributes[0][userColumnShadow][2]}:{fileAttributes[0][userColumnShadow][3]}:{fileAttributes[0][userColumnShadow][4]}:{fileAttributes[0][userColumnShadow][5]}:::"
+    fileAttributes[1][userColumnPasswd] = f"{userName}:x:{fileAttributes[1][userColumnPasswd][2]}:{fileAttributes[1][userColumnPasswd][3]}:{fileAttributes[1][userColumnPasswd][4]}:{fileAttributes[1][userColumnPasswd][5]}:{fileAttributes[1][userColumnPasswd][6]}"
+    #print(fileTexts[0][1][userColumnShadow][1])
     print(newHash)
     
     return 0
@@ -255,7 +261,7 @@ def exitT(command):
 
 commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,password,uptime,cat,startstopDaemon,ftp,chown,root,exitT]
 commandList = ["ir", "copiar", "limpiar","permisos","mover","listar","crearDir","renombrar","addUsuario","contrasena","tiempoOn","concatenar","controlSys","clientFtp","propietario","super","salir"]
-argNumber = [[1],[2],[0],[1],[2],[1,0],[1],[2],[1],[1],[0],[1],[],[0],[2],[0],[0]]
+argNumber = [[1],[2],[0],[1],[2],[1,0],[1],[2],[1],[0],[0],[1],[],[0],[2],[0],[0]]
 #cantidad maxima de argumentos
 
 def caller(command):

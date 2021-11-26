@@ -17,8 +17,8 @@ def getSalt():
         chars.append(random.choice(ALPHABET))
     return "".join(chars)
 def processText(text):
-    processedText = text
-    for i in range(len(text)):
+    processedText = list(text)
+    for i in range(len(processedText)):
         processedText[i] = processedText[i].split(':')
     return processedText
 
