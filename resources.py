@@ -10,6 +10,7 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
 def getSalt():
     ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     chars=[]
@@ -32,7 +33,8 @@ def getNewUserID():#requiere root
     passwdPath = "/etc/passwd"
     passwd = open(passwdPath,"r")
     userID = 0
-    passwd = readFile(passwdPath)      
+    passwd = readFile(passwdPath)  
+    print(len(passwd))
     for i in range(len(passwd)):
         passwd[i] = passwd[i].split(':')
     for i in range(len(passwd)):
