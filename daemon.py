@@ -199,6 +199,8 @@ def cat(command):
     else:
         print("Error no es un archivo")
     return 0
+def startstopDaemon():
+    return 0
 def ftp(command):
     conectado=False
     ftp = FTP()
@@ -245,6 +247,7 @@ def ftp(command):
         ftp.quit()
     except Exception as er1:
         print(er1)
+
 def chown(command):
     #formato cmd user file
     archivo=Path(command[2])
@@ -257,23 +260,24 @@ def chown(command):
     return 0
           
 def root(command):
+    
     #es una herramienta que usaremos mas tarde V:
     #args = ['sudo', sys.executable] + sys.argv + [os.environ]
     file_path = os.path.dirname(__file__)
+
     #print(file_path)
     proc = subprocess.call(['sudo',sys.executable,file_path+"/shell.py"])
+
     return 0
 def exitT(command):
     sys.exit()
     return 0
-def daemon(command):
-    graciasmathiuwu = ' '.join(command)
-    os.system("python3 daemon.py " + graciasmathiuwu)
-    return 0
-commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,password,uptime,cat,daemon,ftp,chown,root,exitT]
+
+commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,password,uptime,cat,startstopDaemon,ftp,chown,root,exitT]
 commandList = ["ir", "copiar", "limpiar","permisos","mover","listar","crearDir","renombrar","addUsuario","contrasena","tiempoOn","concatenar","controlSys","clientFtp","propietario","super","salir"]
-argNumber = [[1],[2],[0],[1],[2],[1,0],[1],[2],[1],[0],[0],[1],[1],[0],[2],[0],[0]]
+argNumber = [[1],[2],[0],[1],[2],[1,0],[1],[2],[1],[0],[0],[1],[],[0],[2],[0],[0]]
 #cantidad maxima de argumentos
+
 def caller(command):
     argErrorFlag = True #Solo se activa si la cantidad de parametros es incorrecta
     out = resources.bcolors.FAIL+'ERROR:'+resources.bcolors.WARNING+'command not found or subprocess failed'+resources.bcolors.ENDC
@@ -305,3 +309,42 @@ def caller(command):
         except:
             print(out)
     return 0
+
+def main():
+    (sys.argv).remove("daemon.py")
+    (sys.argv).remove("controlSys")
+    caller(sys.argv)
+    
+    os.kill(os.getpid(),9)
+    return 0
+
+if __name__ == "__main__":
+    # do the UNIX double-fork magic, see Stevens' "Advanced 
+    # Programming in the UNIX Environment" for details (ISBN 0201563177)
+    try: 
+        pid = os.fork() 
+        if pid > 0:
+            # exit first parent
+            sys.exit(0) 
+    except OSError as e: 
+        print (sys.stderr, "fork #1 failed: %d (%s)" % (e.errno, e.strerror) )
+        sys.exit(1)
+
+    # decouple from parent environment
+    os.chdir("/") 
+    os.setsid() 
+    os.umask(0) 
+
+    # do second fork
+    try: 
+        pid = os.fork() 
+        if pid > 0:
+            # exit from second parent, print eventual PID before
+            print("Daemon PID %d" % pid) 
+            pidFile = open("pidDaemon","w+")
+            pidFile.write(f"{pid}")
+            sys.exit(0) 
+    except OSError as e: 
+        print (sys.stderr, "fork #2 failed: %d (%s)" % (e.errno, e.strerror)) 
+        sys.exit(1) 
+    main()
