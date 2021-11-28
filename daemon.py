@@ -314,7 +314,6 @@ def main():
     (sys.argv).remove("daemon.py")
     (sys.argv).remove("controlSys")
     caller(sys.argv)
-    
     os.kill(os.getpid(),9)
     return 0
 
