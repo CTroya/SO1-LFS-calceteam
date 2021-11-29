@@ -8,10 +8,9 @@ import shell
 import getpass
 import hashlib
 import psutil
-import time
+from time import *
 import sys
 import resources
-import time
 import getpass
 from ftplib import FTP
 
@@ -267,19 +266,23 @@ def exitT(command):
     sys.exit()
     return 0
 def daemon(command):
+    pidFilePath = "/home/ctroya/Documents/SO1-LFS-calceteam/pidDaemon"
+    if len(command) - 1 == 0:
+        pidFile = resources.readFile(pidFilePath)
+        print(*pidFile,sep="\n")
+        return 1
     graciasmathiuwu = ' '.join(command)
-    os.system("python3 daemon.py " + graciasmathiuwu)
+    os.system("sudo python3 daemon.py " + graciasmathiuwu)
     return 0
 commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,password,uptime,cat,daemon,ftp,chown,root,exitT]
 commandList = ["ir", "copiar", "limpiar","permisos","mover","listar","crearDir","renombrar","addUsuario","contrasena","tiempoOn","concatenar","controlSys","clientFtp","propietario","super","salir"]
-argNumber = [[1],[2],[0],[1],[2],[1,0],[1],[2],[1],[0],[0],[1],[1],[0],[2],[0],[0]]
+argNumber = [[1],[2],[0],[1],[2],[1,0],[1],[2],[1],[0],[0],[1],[x for x in range(100)],[0],[2],[0],[0]]
 #cantidad maxima de argumentos
 def caller(command):
     argErrorFlag = True #Solo se activa si la cantidad de parametros es incorrecta
     out = resources.bcolors.FAIL+'ERROR:'+resources.bcolors.WARNING+'command not found or subprocess failed'+resources.bcolors.ENDC
     foundCommand = False
     argc = len(command) - 1
-    
     commandCounter = len(commandFunction)
     #print(f"commandFunctionLen: {len(commandFunction)}") #PARA DEBUG
     #print(f"commandListLen: {len(commandList)}")

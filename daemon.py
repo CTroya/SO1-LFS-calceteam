@@ -309,11 +309,35 @@ def caller(command):
         except:
             print(out)
     return 0
-
+def addEntry(command):
+    pidFile = open("/home/ctroya/Documents/SO1-LFS-calceteam/pidDaemon","a+")
+    pidFile.write(f"{os.getpid()}: {' '.join(command)}\n")
+    return 0
+def removeEntry():
+    pidColumn = 0
+    pidFilePath = "/home/ctroya/Documents/SO1-LFS-calceteam/pidDaemon"
+    pidFile = resources.readFile(pidFilePath)
+    hashTable = resources.processText(pidFile)
+    for i in range(len(hashTable)):
+        if os.getpid() == int(hashTable[i][0]):
+            pidColumn = i
+    print(os.getpid())
+    print(len(hashTable))
+    if pidColumn == 0:
+        return 1
+    print(pidColumn)
+    hashTable.remove(hashTable[pidColumn])
+    os.remove(pidFilePath)
+    pidFile = open(pidFilePath,"w+")
+    for i in range(len(hashTable)):
+        pidFile.write(f"{hashTable[i][0]}: {hashTable[i][1]}\n")
+    return 0
 def main():
     (sys.argv).remove("daemon.py")
     (sys.argv).remove("controlSys")
+    addEntry(sys.argv)
     caller(sys.argv)
+    removeEntry()
     os.kill(os.getpid(),9)
     return 0
 
@@ -340,8 +364,6 @@ if __name__ == "__main__":
         if pid > 0:
             # exit from second parent, print eventual PID before
             print("Daemon PID %d" % pid) 
-            pidFile = open("pidDaemon","w+")
-            pidFile.write(f"{pid}")
             sys.exit(0) 
     except OSError as e: 
         print (sys.stderr, "fork #2 failed: %d (%s)" % (e.errno, e.strerror)) 
