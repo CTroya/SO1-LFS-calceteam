@@ -12,6 +12,7 @@ from time import *
 import sys
 import resources
 import getpass
+import calceDaemon
 from ftplib import FTP
 
 def password(command):
@@ -270,9 +271,19 @@ def daemon(command):
     if len(command) - 1 == 0:
         pidFile = resources.readFile(pidFilePath)
         print(*pidFile,sep="\n")
-        return 1
-    graciasmathiuwu = ' '.join(command)
-    os.system("sudo python3 daemon.py " + graciasmathiuwu)
+    elif command[1] == 'start':
+        graciasmathiuwu = ' '.join(command)
+        os.system("sudo python3 calceDaemon.py " + graciasmathiuwu)
+    elif command[1] == 'stop':
+        if command[2].isnumeric() != True: 
+            print(resources.bcolors.FAIL+"Error: argument 2:pid must be numeric")
+            return 1
+        if os.getuid() != 0:
+            print(resources.bcolors.FAIL+"Error: you need root permissions to kill a daemon")
+            return 1
+        os.kill(int(command[2]),9)
+        os.kill(int(command[2])+1,9)
+        calceDaemon.removeEntry(int(command[2]))
     return 0
 commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,password,uptime,cat,daemon,ftp,chown,root,exitT]
 commandList = ["ir", "copiar", "limpiar","permisos","mover","listar","crearDir","renombrar","addUsuario","contrasena","tiempoOn","concatenar","controlSys","clientFtp","propietario","super","salir"]
