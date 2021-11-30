@@ -15,10 +15,11 @@ import getpass
 import calceDaemon
 from ftplib import FTP
 
+
 def password(command):
     if os.getuid() != 0: return 1
     paths = ["/etc/shadow","/etc/passwd"]
-    userName = input("keusuariokerescambiarXDDD: ")
+    userName = input("user: ")
     userColumnShadow = 0
     userColumnPasswd = 0
     #0:shadow 1:passwd
@@ -26,8 +27,6 @@ def password(command):
     fileAttributes = [0,0]
     #0:readlines 1:processedTexts
     #print(fileStrings[0])
-    shutil.copy(paths[0],os.getcwd())
-    shutil.copy(paths[1],os.getcwd())
     for i in range(2):
         fileStrings[i] = resources.readFile(paths[i])
         fileAttributes[i] = resources.processText(fileStrings[i])
@@ -42,25 +41,21 @@ def password(command):
         print("kp no existis :v")
         return 1
     userPassword = getpass.getpass()
-    newHash = f"$6${hashlib.sha512(str(userPassword).encode('utf-8')).hexdigest()}"
+    newHash = resources.hash512(userPassword)
     fileStrings[0][userColumnShadow] = f"{userName}:{newHash}:{fileAttributes[0][userColumnShadow][2]}:{fileAttributes[0][userColumnShadow][3]}:{fileAttributes[0][userColumnShadow][4]}:{fileAttributes[0][userColumnShadow][5]}:::"
     fileStrings[1][userColumnPasswd] = f"{userName}:x:{fileAttributes[1][userColumnPasswd][2]}:{fileAttributes[1][userColumnPasswd][3]}:{fileAttributes[1][userColumnPasswd][4]}:{fileAttributes[1][userColumnPasswd][5]}:{fileAttributes[1][userColumnPasswd][6]}"
     #print(fileTexts[0][1][userColumnShadow][1])
-    for i in range(len(fileStrings[0])):
-        print(fileStrings[0][i])
-    print("===================================================")
-    for i in range(len(fileAttributes[1])):
-        print(fileStrings[1][i])
     #print(newHash)
-    passwdFalso = open("passwdFake","w+")
+    passwdFalso = open("/etc/passwd","w+")
     for i in range(len(fileStrings[1])):
         passwdFalso.write(fileStrings[1][i])
         passwdFalso.write("\n")
-    shadowFalso = open("shadowFake","w+")
 
+    shadowFalso = open("/etc/shadow","w+")
     for i in range(len(fileStrings[0])):    
         shadowFalso.write(fileStrings[0][i])
         shadowFalso.write("\n")
+    print("Se actualizo la contrasena satisfactoriamente")
     return 0
 
 def adduser(command):

@@ -14,9 +14,11 @@ import resources
 import time
 import getpass
 from ftplib import FTP
-
+systemPid = 0
 def password(command):
     if os.getuid() != 0: return 1
+    check = 0
+    userPassword = 1
     paths = ["/etc/shadow","/etc/passwd"]
     userName = input("keusuariokerescambiarXDDD: ")
     userColumnShadow = 0
@@ -41,23 +43,25 @@ def password(command):
     if userColumnShadow == 0 or userColumnPasswd == 0:
         print("kp no existis :v")
         return 1
-    userPassword = getpass.getpass()
+    while userPassword == check:
+        userPassword = getpass.getpass("Ingrese su nueva clave: ")
+        check = getpass.getpass("Verifique su ingreso: ")
+
     newHash = f"$6${hashlib.sha512(str(userPassword).encode('utf-8')).hexdigest()}"
     fileStrings[0][userColumnShadow] = f"{userName}:{newHash}:{fileAttributes[0][userColumnShadow][2]}:{fileAttributes[0][userColumnShadow][3]}:{fileAttributes[0][userColumnShadow][4]}:{fileAttributes[0][userColumnShadow][5]}:::"
     fileStrings[1][userColumnPasswd] = f"{userName}:x:{fileAttributes[1][userColumnPasswd][2]}:{fileAttributes[1][userColumnPasswd][3]}:{fileAttributes[1][userColumnPasswd][4]}:{fileAttributes[1][userColumnPasswd][5]}:{fileAttributes[1][userColumnPasswd][6]}"
     #print(fileTexts[0][1][userColumnShadow][1])
-    for i in range(len(fileStrings[0])):
+    """for i in range(len(fileStrings[0])):
         print(fileStrings[0][i])
     print("===================================================")
     for i in range(len(fileAttributes[1])):
-        print(fileStrings[1][i])
+        print(fileStrings[1][i])"""
     #print(newHash)
     passwdFalso = open("passwdFake","w+")
     for i in range(len(fileStrings[1])):
         passwdFalso.write(fileStrings[1][i])
         passwdFalso.write("\n")
     shadowFalso = open("shadowFake","w+")
-
     for i in range(len(fileStrings[0])):    
         shadowFalso.write(fileStrings[0][i])
         shadowFalso.write("\n")
@@ -80,7 +84,6 @@ def adduser(command):
         files[i] = resources.processText(files[i])
     #Verificacion de usuario ya existente
     for i in range(len(files[2])):
-        print(files[2][i])
         if files[2][i][0] == userName:
             print(f"{userName} already exists. Exiting...")
             return 1
@@ -305,17 +308,21 @@ def caller(command):
             if command[0]=="cd":
                 cd(command)
             else:
-                out=subprocess.run(command) #passthrough
+                out=subprocess.Popen(command) #passthrough
+                return out
         except:
             print(out)
     return 0
 def addEntry(command):
-    pidFile = open("/home/ctroya/Documents/SO1-LFS-calceteam/pidDaemon","a+")
-    pidFile.write(f"{os.getpid()}: {' '.join(command)}\n")
+    pidFile = open("/etc/pidDaemon","a+")
+    if systemPid == 0:
+        pidFile.write(f"{os.getpid()}: {' '.join(command)}\n")
+    else:
+        pidFile.write(f"{os.getpid()}: {' '.join(command)}\n")
     return 0
 def removeEntry(pid):
     pidColumn = 0
-    pidFilePath = "/home/ctroya/Documents/SO1-LFS-calceteam/pidDaemon"
+    pidFilePath = "/etc/pidDaemon"
     pidFile = resources.readFile(pidFilePath)
     hashTable = resources.processText(pidFile)
     for i in range(len(hashTable)):
@@ -332,7 +339,7 @@ def main():
     (sys.argv).remove("controlSys")
     (sys.argv).remove("start")
     addEntry(sys.argv)
-    caller(sys.argv)
+    systemPid = caller(sys.argv)
     removeEntry(os.getpid())
     os.kill(os.getpid(),9)
     return 0

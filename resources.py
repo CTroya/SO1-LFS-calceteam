@@ -1,4 +1,5 @@
 import random
+import crypt
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -51,3 +52,8 @@ def getNewGroupID():#requiere root
         if groupID < int(group[i][2]):
             groupID = int(group[i][2])
     return groupID + 1
+
+def hash512(password):
+    salt = getSalt()
+    h = crypt.crypt(password,f"$6${salt}")
+    return h
