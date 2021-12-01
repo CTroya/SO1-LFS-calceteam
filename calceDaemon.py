@@ -119,9 +119,7 @@ def cd(command):
         os.chdir(os.path.abspath(path))
     except:
         print("ERROR: Not a valid path")
-    return 0
-
-#NUEVO MOD    
+    return 0  
 def cp(command):
     #command[1] es el directorio de origen del archivo que queremos mover (creo que solo nombre de archivo (?))
     #command[2] es el el directorio de destino del archivo
@@ -137,7 +135,6 @@ def cp(command):
     except:
         print("Error:No se pudo realizar la copia")
     return 0
-
 def mv(command):
     #command[1] es el directorio de origen del archivo que queremos mover (creo que solo nombre de archivo (?))
     #command[2] es el el directorio de destino del archivo
@@ -149,7 +146,6 @@ def mv(command):
     except:
         print("Pero que bobito no sabe usar el comando xD")
     return 0
-
 def pmod(command):
     print(command)
     try:
@@ -182,7 +178,7 @@ def uptime(command):
     print(time.strftime("%H:%M:%S", time.gmtime()))    
     print(time.strftime("%Hh%Mm", time.gmtime(round(time.time()-psutil.boot_time()))))
     print("Carga promedio:",[str(x) for x in os.getloadavg()])
-    #    /var/run/utmp
+    #/var/run/utmp
     return 0
 #NUEVO
 def cat(command):
@@ -299,6 +295,7 @@ def caller(command):
         for i in range(commandCounter):
                 for j in range(len(argNumber[i])):
                     if(command[0] == commandList[i] and argc == argNumber[i][j]):
+                        addEntry(sys.argv,os.getpid())
                         commandFunction[i](command)
                         argErrorFlag = False
         if argErrorFlag: print(resources.bcolors.FAIL+"ERROR: argument quantity mismatch"+resources.bcolors.ENDC)
@@ -306,19 +303,20 @@ def caller(command):
         #print(command) 
         try:
             if command[0]=="cd":
+                addEntry(sys.argv,os.getpid())
                 cd(command)
+                removeEntry(sys.argv,os.getpid())
             else:
                 out=subprocess.Popen(command) #passthrough
-                return out
+                addEntry(sys.argv,out.pid)
+                print(f"out: {out.pid}")
+                return out.pid
         except:
             print(out)
     return 0
-def addEntry(command):
+def addEntry(command,pid):
     pidFile = open("/etc/pidDaemon","a+")
-    if systemPid == 0:
-        pidFile.write(f"{os.getpid()}: {' '.join(command)}\n")
-    else:
-        pidFile.write(f"{os.getpid()}: {' '.join(command)}\n")
+    pidFile.write(f"{pid}: {' '.join(command)}\n")
     return 0
 def removeEntry(pid):
     pidColumn = 0
@@ -338,15 +336,13 @@ def main():
     (sys.argv).remove("calceDaemon.py")
     (sys.argv).remove("controlSys")
     (sys.argv).remove("start")
-    addEntry(sys.argv)
     systemPid = caller(sys.argv)
-    removeEntry(os.getpid())
     os.kill(os.getpid(),9)
     return 0
 
 if __name__ == "__main__":
     # do the UNIX double-fork magic, see Stevens' "Advanced 
-    # Programming in the UNIX Environment" for details (ISBN co201563177)
+    # Programming in the UNIX Environment" for details (ISB-N co201563177)
     try: 
         pid = os.fork() 
         if pid > 0:

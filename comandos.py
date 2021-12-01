@@ -262,7 +262,7 @@ def exitT(command):
     sys.exit()
     return 0
 def daemon(command):
-    pidFilePath = "/home/ctroya/Documents/SO1-LFS-calceteam/pidDaemon"
+    pidFilePath = "/etc/pidDaemon"
     if len(command) - 1 == 0:
         pidFile = resources.readFile(pidFilePath)
         print(*pidFile,sep="\n")
@@ -277,7 +277,6 @@ def daemon(command):
             print(resources.bcolors.FAIL+"Error: you need root permissions to kill a daemon")
             return 1
         os.kill(int(command[2]),9)
-        os.kill(int(command[2])+1,9)
         calceDaemon.removeEntry(int(command[2]))
     return 0
 commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,password,uptime,cat,daemon,ftp,chown,root,exitT]
