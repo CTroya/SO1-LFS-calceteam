@@ -171,8 +171,8 @@ def rename(command):
     return 0
 #NUEVO
 def uptime(command):
-    print(time.strftime("%H:%M:%S", time.gmtime()))    
-    print(time.strftime("%Hh%Mm", time.gmtime(round(time.time()-psutil.boot_time()))))
+    print(strftime("%H:%M:%S", gmtime()))    
+    print(strftime("%Hh%Mm", gmtime(round(time()-psutil.boot_time()))))
     print("Carga promedio:",[str(x) for x in os.getloadavg()])
     #    /var/run/utmp
     return 0
@@ -234,6 +234,21 @@ def ftp(command):
                     print("Error al descargar el archivo")
             else:
                 print("Error no se encuentra el archivo")
+        elif "cargar " in cmd:
+            cmd = cmd[7:]
+            if isfile(cmd):#comprobamos si es un archivo
+                try:
+                    archivo=open(cmd,'rb')
+                    nombreArchivo=input("Ingrese nombre para guardar el archivo: ")#falta comprobar que no tenga espacios etc
+                    ftp.storbinary('STOR '+nombreArchivo, archivo)#cargar el archivo
+                    archivo.close()                    
+                except:
+                    print("Error al abrir el archivo")
+                    break
+            else:
+                print("Error no es un archivo")
+                return 0
+            
         else:
             print("Error: "+cmd+" no valido")
     try:
