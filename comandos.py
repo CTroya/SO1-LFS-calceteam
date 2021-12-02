@@ -145,8 +145,8 @@ def mv(command):
 def pmod(command):
     print(command)
     try:
-        os.chmod(command[0],333)
-        print(f"{command[0]} permissions changed")
+        os.chmod(command[2],int(command[1], base=8))
+        print(f"{command[2]} permissions changed")
     except OSError:
             print("ERROR: Not a valid path")
     except Exception:
@@ -296,7 +296,7 @@ def daemon(command):
     return 0
 commandFunction = [cd,cp,clear,pmod,mv,ls,mkdir,rename,adduser,password,uptime,cat,daemon,ftp,chown,root,exitT]
 commandList = ["ir", "copiar", "limpiar","permisos","mover","listar","crearDir","renombrar","addUsuario","contrasena","tiempoOn","concatenar","controlSys","clientFtp","propietario","super","salir"]
-argNumber = [[1],[2],[0],[1],[2],[1,0],[1],[2],[1],[0],[0],[1],[x for x in range(100)],[0],[2],[0],[0]]
+argNumber = [[1],[2],[0],[2],[2],[1,0],[1],[2],[1],[0],[0],[1],[x for x in range(100)],[0],[2],[0],[0]]
 #cantidad maxima de argumentos
 def caller(command):
     argErrorFlag = True #Solo se activa si la cantidad de parametros es incorrecta
