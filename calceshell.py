@@ -216,7 +216,7 @@ class calceshell(cmd2.Cmd):
             self.perror(er)
         return 0
             
-
+    #Comando de cliente FTP
     def do_miftp(self,opt):
         conectado=False
         ftp = FTP()
@@ -286,6 +286,7 @@ class calceshell(cmd2.Cmd):
     moverParser.add_argument('dst',nargs=1,help='Directorio al cual se quiere mover')
 
     @with_argparser(moverParser)
+    #Comando para mover archivos
     def do_mover(self, opt):
         #Se normalizan las direcciones antes de trabajar
         origin = os.path.abspath(os.path.expanduser(opt.src[0]))
@@ -303,7 +304,7 @@ class calceshell(cmd2.Cmd):
             except Exception as er:
                 self.perror(er)
         return 
-
+        
     def complete_mover(self, text, line, begidx, endidx):
         return self.path_complete(text, line, begidx, endidx)
 
@@ -351,6 +352,7 @@ class calceshell(cmd2.Cmd):
         self.poutput("Bye")
         return True
 
+    #Comando que nos deja entrar a modo root
     def do_super(self, line):
         #es una herramienta que usaremos mas tarde V:        
         file_path = os.path.dirname(__file__)
