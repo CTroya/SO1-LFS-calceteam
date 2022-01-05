@@ -50,11 +50,9 @@ class calceshell(cmd2.Cmd):
 
     claveParser = Cmd2ArgumentParser()
     claveParser.add_argument('usr',nargs=1,help="Nombre del usuario al cual cambiar la contraseña")
-    """
-        Enlaza una contraseña a un usuario.
-        La contraseña es ingresada por teclado
-        Se encripta y se lo añade en el archivo shadow
-    """
+        #Enlaza una contraseña a un usuario.
+        #La contraseña es ingresada por teclado
+        #Se encripta y se lo añade en el archivo shadow
     def do_clave(self,opt):
         if os.getuid() != 0: 
             self.perror("No se tienen los permisos para realizar la operación")
