@@ -50,6 +50,11 @@ class calceshell(cmd2.Cmd):
 
     claveParser = Cmd2ArgumentParser()
     claveParser.add_argument('usr',nargs=1,help="Nombre del usuario al cual cambiar la contraseña")
+    """
+        Enlaza una contraseña a un usuario.
+        La contraseña es ingresada por teclado
+        Se encripta y se lo añade en el archivo shadow
+    """
     def do_clave(self,opt):
         if os.getuid() != 0: 
             self.perror("No se tienen los permisos para realizar la operación")
@@ -63,9 +68,12 @@ class calceshell(cmd2.Cmd):
         fileAttributes = [0,0]
         #0:readlines 1:processedTexts
         #print(fileStrings[0])
+        
+        #Leemos los archivos de paths
         for i in range(2):
             fileStrings[i] = resources.readFile(paths[i])
             fileAttributes[i] = resources.processText(fileStrings[i])
+        #Buscamos el nombre de usuario ingresado en los archivos de path
         for i in range(len(fileAttributes[0])):
             if fileAttributes[0][i][0] == userName:
                 userColumnShadow = i
@@ -73,16 +81,21 @@ class calceshell(cmd2.Cmd):
             #print(fileTexts[1][1][i][0])
             if fileAttributes[1][i][0] == userName:
                 userColumnPasswd = i
+        #Si no se encuentra el usuario, tiramos un mensaje de error antes de salir de ejecucion        
         if userColumnShadow == 0 or userColumnPasswd == 0:
             self.poutput("No se encuentra el usuario especificado")
             return 
+        #Pedimos input de la contraseña con echo desactivado, por motivos de seguridad
         userPassword = getpass.getpass()
+        #Encriptamos la contraseña
         newHash = resources.hash512(userPassword)
+        #Escribimos el hash y otros datos en un array, antes de escribirlo en el archivo
         fileStrings[0][userColumnShadow] = f"{userName}:{newHash}:{fileAttributes[0][userColumnShadow][2]}:{fileAttributes[0][userColumnShadow][3]}:{fileAttributes[0][userColumnShadow][4]}:{fileAttributes[0][userColumnShadow][5]}:::"
         fileStrings[1][userColumnPasswd] = f"{userName}:x:{fileAttributes[1][userColumnPasswd][2]}:{fileAttributes[1][userColumnPasswd][3]}:{fileAttributes[1][userColumnPasswd][4]}:{fileAttributes[1][userColumnPasswd][5]}:{fileAttributes[1][userColumnPasswd][6]}"
         #print(fileTexts[0][1][userColumnShadow][1])
         #print(newHash)
         passwdFalso = open("/etc/passwd","w+")
+        #Actualizamos los archivos passwd y shadow
         for i in range(len(fileStrings[1])):
             passwdFalso.write(fileStrings[1][i])
             passwdFalso.write("\n")
@@ -98,6 +111,10 @@ class calceshell(cmd2.Cmd):
     usuarioParser=Cmd2ArgumentParser()
     usuarioParser.add_argument('usr',nargs=1,help='nombre del usuario')
     @with_argparser(usuarioParser)
+    """ 
+        Añade un usuario, modificando los archivos passwd y group
+        El usuario creado carece de una contraseña
+    """
     def do_usuario(self, opt):
         if getpass.getuser() != 'root': 
             self.perror("No posees los permisos necesarios para añadir usuarios")
@@ -149,6 +166,8 @@ class calceshell(cmd2.Cmd):
     permisoParser.add_argument('file',nargs=1,help="Archivo o directorio al cual se le quiere modificar los permisos")
     
     @with_argparser(permisoParser)
+    
+    #Cambia los permisos de los archivos
     def do_permiso(self, opt): 
 
         opt.file=os.path.abspath(os.path.expanduser(opt.file[0]))       
