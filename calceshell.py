@@ -63,12 +63,8 @@ class calceshell(cmd2.Cmd):
         userName = opt.usr[0]
         userColumnShadow = 0
         userColumnPasswd = 0
-        #0:shadow 1:passwd
         fileStrings = [0,0]
-        fileAttributes = [0,0]
-        #0:readlines 1:processedTexts
-        #print(fileStrings[0])
-        
+        fileAttributes = [0,0]     
         #Leemos los archivos de paths
         for i in range(2):
             fileStrings[i] = resources.readFile(paths[i])
@@ -186,9 +182,11 @@ class calceshell(cmd2.Cmd):
     creadirParser = Cmd2ArgumentParser()
     creadirParser.add_argument('dir',nargs=1,type=str,help='ruta en la cual crear el directorio nuevo')
     @with_argparser(creadirParser)
+    #Comando que nos crea directorios
     def do_creadir(self, opt):
+        #Direccion que provee el usuario
         direccion=os.path.abspath(os.path.expanduser(opt.dir[0]))        
-
+        #Verificamos si el directorio ya existe
         if os.path.exists(direccion):
             print(f"crearDir: cannot create directory ‘{direccion}’: File exists")
         else:
@@ -366,6 +364,7 @@ class calceshell(cmd2.Cmd):
     listarParser.add_argument('dir', nargs='?',default=" ", help='ruta al directorio')
 
     @with_argparser(listarParser)
+    #Comando que no lista archivos y carpetas que se encuentran en el la ruta de trabajo
     def do_listar(self, opt):
         #fix por si se meta la virgula :V
         opt.dir=os.path.expanduser(opt.dir) 
@@ -397,7 +396,7 @@ class calceshell(cmd2.Cmd):
 
     def complete_listar(self, text, line, begidx, endidx):
         return self.path_complete(text, line, begidx, endidx)
-
+    #Comando que nos encuentra 
     def do_tiempoEncendido(self, line):       
         tiempo=strftime("%H:%M:%S", gmtime())
         tiempoon=strftime("%Hh%Mm", gmtime(round(time()-psutil.boot_time())))
