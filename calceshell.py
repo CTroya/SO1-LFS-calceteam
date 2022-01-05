@@ -1,5 +1,5 @@
 import cmd
-from re import S
+from re import S, split
 import cmd2 
 from cmd2 import (
 Bg,
@@ -24,6 +24,8 @@ from time import *
 import argparse
 import resources
 import calceDaemon
+import pwd
+import socket 
 
 readline.parse_and_bind("tab: complete")
 
@@ -46,11 +48,14 @@ class calceshell(cmd2.Cmd):
         return stop
 
 
-
-    def do_clave(self,command):
-        if os.getuid() != 0: return
+    claveParser = Cmd2ArgumentParser()
+    claveParser.add_argument('usr',nargs=1,help="Nombre del usuario al cual cambiar la contraseña")
+    def do_clave(self,opt):
+        if os.getuid() != 0: 
+            self.perror("No se tienen los permisos para realizar la operación")
+            return
         paths = ["/etc/shadow","/etc/passwd"]
-        userName = input("user: ")
+        userName = opt.usr[0]
         userColumnShadow = 0
         userColumnPasswd = 0
         #0:shadow 1:passwd
@@ -69,8 +74,8 @@ class calceshell(cmd2.Cmd):
             if fileAttributes[1][i][0] == userName:
                 userColumnPasswd = i
         if userColumnShadow == 0 or userColumnPasswd == 0:
-            self.poutput("kp no existis :v")
-            return 1
+            self.poutput("No se encuentra el usuario especificado")
+            return 
         userPassword = getpass.getpass()
         newHash = resources.hash512(userPassword)
         fileStrings[0][userColumnShadow] = f"{userName}:{newHash}:{fileAttributes[0][userColumnShadow][2]}:{fileAttributes[0][userColumnShadow][3]}:{fileAttributes[0][userColumnShadow][4]}:{fileAttributes[0][userColumnShadow][5]}:::"
@@ -111,16 +116,31 @@ class calceshell(cmd2.Cmd):
             if files[2][i][0] == userName:
                 self.perror(f"{userName} ya existe. Saliendo....")
                 return
+        #se obtienen los ID de usuario y grupo nuevos
         userID = resources.getNewUserID()
         groupID = resources.getNewGroupID()
+        #Se crea el directorio HOME para el nuevo usuario
         homePath = f"/home/{userName}" 
         if(os.path.exists(homePath) == False):
             os.mkdir(homePath,int('755',8))
+        #guardar datos personales
+        self.poutput("Ingresa los valores:\n")
+        fullname=input("Nombre Completo []: ")
+        roomname=input("Numero de Habitación []: ")
+        workphone=input("Teléfono del Trabajo []:")
+        homephone=input("Teléfono de casa []: ")
+        inihour=input("Horario de entrada HH:MM: ")
+        inihour=inihour.replace(":","")
+        finhour=input("Horario de salida HH:MM: ")
+        finhour=finhour.replace(":","")
         for i in range(3):
             files[i] = open(paths[i],"a+")
+
         files[0].write(f"{userName}:!:{int(time()/86400)}:0:99999:7:::\n")
-        files[1].write(f"{userName}:!:{userID}:{groupID}:xd,,,:{homePath}:/bin/bash\n")
+        files[1].write(f"{userName}:!:{userID}:{groupID}:{fullname} {roomname} {workphone} {homephone},{inihour},{finhour}:{homePath}:/bin/bash\n")
         files[2].write(f"{userName}:x:{groupID}:\n")
+
+        #cerrar?
         self.poutput(f"Se añadio el usuario {userName} al sistema")
         return 
 
@@ -403,33 +423,49 @@ class calceshell(cmd2.Cmd):
 
     controlsysParser=Cmd2ArgumentParser()
     controlsysParser.add_argument('cmd',nargs=1,type=str, help='llala') #corroborar que sea comando:V
-    controlsysParser.add_argument('daemon',nargs=1,type=str, help='llalaa') #opcional revisar
+    controlsysParser.add_argument('daemon',nargs=1, help='llalaa') #opcional revisar
     @with_argparser(controlsysParser)
     def do_controlsys(self,opt):
-        command=opt.cmd[0]
-        print(command)
-        pidFilePath = "/etc/pidDaemon"
-        if command == "running":
-            pidFile = resources.readFile(pidFilePath)
-            print(*pidFile,sep="\n")
-        elif command == 'start':
-            #graciasmathiuwu = ' '.join(command)            
-            #print(graciasmathiuwu)
-            #subprocess.run("echo hola", shell=True, check=True)
-            os.system("sudo python3 calceDaemon.py controlSys "+command+" "+opt.daemon[0]) #lugar donde va a estar :V
-        elif command == 'stop':
-            if command[2].isnumeric() != True: 
-                print(resources.bcolors.FAIL+"Error: argument 2:pid must be numeric")
-                return 
-            if os.getuid() != 0:
-                print(resources.bcolors.FAIL+"Error: you need root permissions to kill a daemon")
-                return 
-            os.kill(int(command[2]),9)
-            calceDaemon.removeEntry(int(command[2]))
-
-        return 
+        command=opt.cmd[0]        
+        demonio=opt.daemon[0]
+        if command == 'start':
+            os.system("python3 calceDaemon.py start "+demonio)
+            
+        elif command == 'stop': 
+            os.system("python3 calceDaemon.py stop "+demonio)           
+            
+        elif command == 'restart':  
+            os.system("python3 calceDaemon.py restart "+demonio)          
+            
+        else:
+            print("Comando no reconocido")
+            return
+         
 
 if __name__ == '__main__':
+    
+    hostname = socket.gethostname()    
+    IPAddr = socket.gethostbyname(hostname)    
+    print(IPAddr)
+    #Se carga los datos de los campos GECOS del usuario actual que loguea
+    entry = pwd.getpwuid(os.getuid())
+    usergecos=entry.pw_gecos
+    print(usergecos)
+    usergecos=usergecos.split(",")
+    #Se comprueba que existan al menos 3 valores cargados 1 estandar 2 opcionales correspondientes a VAL,hora de inicio laboral, hora de salida laboral
+    if len(usergecos)==3:
+        mintime=int(usergecos[1])
+        maxtime=int(usergecos[2])
+        print(mintime,maxtime)
+        actual=int(strftime("%H%M", gmtime()))
+        if (actual>=mintime and actual<=maxtime): #se comprueba que el horario de login este en regla con el horario de trabajo
+            print("OK hora normal de trabajo")
+        else:
+            print("Se reportará login fuera del horario")#sino se reporta (mandar a un log)
+    else:
+        print("Hora de trabajo no definida")
+
+    
     shell=calceshell()
     sys.exit(shell.cmdloop())
     
