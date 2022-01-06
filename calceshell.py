@@ -26,6 +26,7 @@ import resources
 import calceDaemon
 import pwd
 import socket 
+import logging
 
 readline.parse_and_bind("tab: complete")
 
@@ -39,12 +40,37 @@ class calceshell(cmd2.Cmd):
         self.default_to_shell = True
         self.intro = style('calceShell 2021 para SO1!', fg=Fg.RED, bg=Bg.BLACK, bold=True) + ' 😀📁📂🗃🗎🖻🖹🖿🗀🗁'
         self.prompt=prompt = getpass.getuser()+"@"+socket.gethostname()+":"+str(os.getcwd())+"$ \n>"
-        
+        self._formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        self._formatterstd = logging.Formatter('%(message)s')
+        self._logger = self.setup_logger('cmdLog', os.path.expanduser('/var/log/shell/movimientos_usuarios.log'), False)
+        self.register_postparsing_hook(self.logUserCmd)
 
+    def logUserCmd(self, params: cmd2.plugin.PostparsingData) -> cmd2.plugin.PostparsingData:
+        # Esta funcion realiza el hook para logear los comandos que ingresó el usuario
+        # Los datos ingresados estan disponibles en params.statement y .raw es exactamente lo que el usuario escribio antes de procesar 
+        
+        self._logger.info(params.statement.raw+" "+getpass.getuser())
+        return params
+
+    def setup_logger(self, name, log_file, toStdout, level=logging.INFO):
+        
+        handler = logging.FileHandler(log_file)        
+        handler.setFormatter(self._formatter)
+        logger = logging.getLogger(name)
+        logger.setLevel(level)
+        if toStdout:
+            consoleHandler = logging.StreamHandler(sys.stdout)
+            consoleHandler.setFormatter(self._formatterstd)
+            logger.addHandler(consoleHandler)
+
+        logger.addHandler(handler)        
+        return logger
+        
     def postcmd(self, stop: bool, line: str) -> bool: #FUNCION QUE SE EJECUTA LUEGO DE CADA COMANDO AQUI SE PUEDE HOOKEAR EL CAMBIO DE PROMPT!!!!!
         #wd=getpass.getuser()+"@"+socket.gethostname()+":"+str(os.getcwd())+"$ \n"
         #self.prompt = style('{!r} $ '.format(wd), fg = Fg.DARK_GRAY, bg = Bg.BLUE,bold=True) #para dejarle chururu
-        self.prompt = getpass.getuser()+"@"+socket.gethostname()+":"+str(os.getcwd())+"$ \n>"       
+        self.prompt = getpass.getuser()+"@"+socket.gethostname()+":"+str(os.getcwd())+"$ \n>" 
+          
         return stop
 
 
@@ -105,10 +131,10 @@ class calceshell(cmd2.Cmd):
     usuarioParser=Cmd2ArgumentParser()
     usuarioParser.add_argument('usr',nargs=1,help='nombre del usuario')
     @with_argparser(usuarioParser)
-    """ 
-        Añade un usuario, modificando los archivos passwd y group
-        El usuario creado carece de una contraseña
-    """
+    
+    #Añade un usuario, modificando los archivos passwd y group
+    #El usuario creado carece de una contraseña
+  
     def do_usuario(self, opt):
         if getpass.getuser() != 'root': 
             self.perror("No posees los permisos necesarios para añadir usuarios")
@@ -131,7 +157,8 @@ class calceshell(cmd2.Cmd):
         userID = resources.getNewUserID()
         groupID = resources.getNewGroupID()
         #Se crea el directorio HOME para el nuevo usuario
-        homePath = f"/home/{userName}" 
+        homePath = f"/home/{userName}"
+        shutil.chown(homePath,userName,userName) 
         if(os.path.exists(homePath) == False):
             os.mkdir(homePath,int('755',8))
         #guardar datos personales
@@ -400,8 +427,8 @@ class calceshell(cmd2.Cmd):
         tiempoon=strftime("%Hh%Mm", gmtime(round(time()-psutil.boot_time())))
         usuariosOn=len(psutil.users())
         load1, load5, load15 = os.getloadavg()
-        self.poutput(f"{tiempo} up {tiempoon}, {usuariosOn} usuarios, carga promedio: {load1}, {load5}, {load15}")
-
+        self._logger.info(f"{tiempo} up {tiempoon}, {usuariosOn} usuarios, carga promedio: {load1}, {load5}, {load15}")
+        self._logger.info("Holamundo log")   
         return
 
 
@@ -460,10 +487,33 @@ class calceshell(cmd2.Cmd):
             return
          
 
+
 if __name__ == '__main__':
-    
+   
+    if not os.path.exists('/var/log/shell'):
+        print("Se requieren premisos para crear archivos de log de la shell:")
+        os.system('sudo mkdir /var/log/shell')
+        os.system('sudo touch /var/log/shell/usuario_horarios.log')
+        os.system('sudo touch /var/log/shell/shell_transferencias.log')
+        os.system('sudo touch /var/log/shell/movimientos_usuarios.log')
+        os.system('sudo touch /var/log/shell/sistema_error.log')
+         #Sacrilegio mode on:
+        os.system('sudo chmod 777 -R /var/log/shell')
+
+    #Creacion del logger para entrada y salida de usuarios con el control de horario
+    formatoDelLogin = logging.Formatter('%(levelname)s %(asctime)s %(message)s')
+    #usrHandler = logging.FileHandler(os.path.expanduser('~/usuario_horarios.log'))    
+    usrHandler = logging.FileHandler(os.path.expanduser('/var/log/shell/usuario_horarios.log'))      
+    #usrHandler = logging.handlers.SysLogHandler(facility=logging.handlers.SysLogHandler.LOG_USER,address='/var/log/shell/usuario_horarios.log')
+    #usrHandler = logging.handlers.WatchedFileHandler("/var/log/shell/usuario_horarios.log")
+    usrHandler.setFormatter(formatoDelLogin)
+    userLogger = logging.getLogger('userlogins')
+    userLogger.setLevel(logging.INFO)
+    userLogger.addHandler(usrHandler)
+
     hostname = socket.gethostname()    
-    IPAddr = socket.gethostbyname(hostname)    
+    IPAddr = socket.gethostbyname(hostname)   
+
     print(IPAddr)
     #Se carga los datos de los campos GECOS del usuario actual que loguea
     entry = pwd.getpwuid(os.getuid())
@@ -479,9 +529,11 @@ if __name__ == '__main__':
         if (actual>=mintime and actual<=maxtime): #se comprueba que el horario de login este en regla con el horario de trabajo
             print("OK hora normal de trabajo")
         else:
+            userLogger.warning(f"El usuario {getpass.getuser()} realiza loggin fuera de su horario normal desde la IP:{IPAddr}")
             print("Se reportará login fuera del horario")#sino se reporta (mandar a un log)
     else:
-        print("Hora de trabajo no definida")
+        userLogger.info(f"El usuario {getpass.getuser()} realiza loggin, sin horario de trabajo definido, desde la IP:{IPAddr}")
+        print("Hora de trabajo no establecida")
 
     
     shell=calceshell()
