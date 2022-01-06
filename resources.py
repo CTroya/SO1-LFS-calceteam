@@ -57,3 +57,11 @@ def hash512(password):
     salt = getSalt()
     h = crypt.crypt(password,f"$6${salt}")
     return h
+
+def listToString(s): 
+    
+    # initialize an empty string
+    str1 = " " 
+    
+    # return string  
+    return (str1.join(s))

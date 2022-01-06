@@ -31,6 +31,7 @@ import logging
 readline.parse_and_bind("tab: complete")
 
 
+
 class calceshell(cmd2.Cmd):
 
     def __init__(self):
@@ -79,6 +80,7 @@ class calceshell(cmd2.Cmd):
         #Enlaza una contraseña a un usuario.
         #La contraseña es ingresada por teclado
         #Se encripta y se lo añade en el archivo shadow
+    @with_argparser(claveParser)
     def do_clave(self,opt):
         if os.getuid() != 0: 
             self.perror("No se tienen los permisos para realizar la operación")
@@ -468,19 +470,22 @@ class calceshell(cmd2.Cmd):
 
     controlsysParser=Cmd2ArgumentParser()
     controlsysParser.add_argument('cmd',nargs=1,type=str, help='llala') #corroborar que sea comando:V
-    controlsysParser.add_argument('daemon',nargs=1, help='llalaa') #opcional revisar
+    controlsysParser.add_argument('daemon',nargs=(1,), help='llalaa') #opcional revisar
     @with_argparser(controlsysParser)
     def do_controlsys(self,opt):
         command=opt.cmd[0]        
-        demonio=opt.daemon[0]
+        demonio=opt.daemon
+        print(" ".join(demonio))
+        #print(listToString(demonio))
+        # OBS!!!! LA UBICACION DEL SCRIPT CALCEDAEMON!
         if command == 'start':
-            os.system("python3 calceDaemon.py start "+demonio)
+            os.system("python3 calceDaemon.py start "+" ".join(demonio))
             
         elif command == 'stop': 
-            os.system("python3 calceDaemon.py stop "+demonio)           
+            os.system("python3 calceDaemon.py stop "+" ".join(demonio))           
             
         elif command == 'restart':  
-            os.system("python3 calceDaemon.py restart "+demonio)          
+            os.system("python3 calceDaemon.py restart "+" ".join(demonio))          
             
         else:
             print("Comando no reconocido")
@@ -497,8 +502,8 @@ if __name__ == '__main__':
         os.system('sudo touch /var/log/shell/shell_transferencias.log')
         os.system('sudo touch /var/log/shell/movimientos_usuarios.log')
         os.system('sudo touch /var/log/shell/sistema_error.log')
-         #Sacrilegio mode on:
-        os.system('sudo chmod 777 -R /var/log/shell')
+        #Sacrilegio mode on:
+        os.system('sudo chmod 777 -R /var/log/shell') #crear grupo y añadir usuarios  que necesiten usar la shell 755
 
     #Creacion del logger para entrada y salida de usuarios con el control de horario
     formatoDelLogin = logging.Formatter('%(levelname)s %(asctime)s %(message)s')
