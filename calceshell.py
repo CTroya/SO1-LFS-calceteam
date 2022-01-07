@@ -475,17 +475,18 @@ class calceshell(cmd2.Cmd):
     def do_controlsys(self,opt):
         command=opt.cmd[0]        
         demonio=opt.daemon
-        print(" ".join(demonio))
+        #print(" ".join(demonio))
         #print(listToString(demonio))
         # OBS!!!! LA UBICACION DEL SCRIPT CALCEDAEMON!
         if command == 'start':
-            os.system("python3 calceDaemon.py start "+" ".join(demonio))
+            
+            subprocess.run(["python3","calceDaemon.py","start"]+demonio)
             
         elif command == 'stop': 
-            os.system("python3 calceDaemon.py stop "+" ".join(demonio))           
+            subprocess.run(["python3","calceDaemon.py","stop"]+demonio)          
             
         elif command == 'restart':  
-            os.system("python3 calceDaemon.py restart "+" ".join(demonio))          
+            subprocess.run(["python3","calceDaemon.py","restart"]+demonio)          
             
         else:
             print("Comando no reconocido")

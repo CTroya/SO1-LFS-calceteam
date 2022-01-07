@@ -3,7 +3,8 @@ import sys
 import time
 import atexit
 from signal import SIGTERM
-import resources
+import subprocess
+import pathlib
 
 def init_daemon_env():
     os.chdir('/')
@@ -25,7 +26,7 @@ def get_pid(pidfile, default=None):
 
 class Demonio(object):
     #pidfile va a ser el path al programa que se quiere hacer daemon puede ser scrip`t`
-    def __init__(self, pidfile, arg,
+    def __init__(self, filename ,pidfile, arg,
                  stdin='/dev/null',
                  stdout='/dev/null',
                  stderr='/dev/null'):
@@ -34,6 +35,7 @@ class Demonio(object):
         self.stderr = stderr
         self.pidfile = pidfile
         self.arg = arg
+        self.filename = filename
 
     def daemonize(self):    
         #FORK 1
@@ -66,20 +68,20 @@ class Demonio(object):
         os.dup2(se.fileno(), sys.stderr.fileno())
 
         #ESCRIBIR EL ARCHIVO PID
-        atexit.register(self.delpid)
+        #atexit.register(self.delpid)
         pid = str(os.getpid())
 
-        with open("/tmp/"+os.path.basename(self.pidfile)+".pid", 'w+') as f:
+        with open("/tmp/"+self.filename+".pid", 'w+') as f:
             f.write(pid)
         print(pid)
 
     def delpid(self):
-        os.remove(self.pidfile)
+        os.remove(self.filename)
 
     def start(self):
         #ANTES DE INICIAR CORROBORA SI YA EXISTE EL ARCHIVO PID PARA SABER SI EL DEMONIO YA ESTA CORRIENDO
-        print(os.path.basename(self.pidfile))
-        if get_pid("/tmp/"+os.path.basename(self.pidfile)+".pid"):
+        
+        if get_pid("/tmp/"+self.filename+".pid"):
             msg = "El archivo pid %s ya existe. El demonio ya está corriendo"
             exit_err(msg % self.pidfile)
 
@@ -87,7 +89,7 @@ class Demonio(object):
         self.run()
 
     def stop(self):
-        pid = get_pid("/tmp/"+os.path.basename(self.pidfile)+".pid")
+        pid = get_pid("/tmp/"+self.filename+".pid")
         if not pid:
             msg = "El archivo pid %s no existe. El demonio no está corriendo"
             print(msg % self.pidfile)
@@ -100,55 +102,49 @@ class Demonio(object):
         except OSError as e:
             error = e.strerror  
             if 'No such process' in error:                                          #si no se encuentra el archivo pide del proceso activo
-                if os.path.exists("/tmp/"+os.path.basename(self.pidfile)+".pid"):   #se verifica si el archivo .pid existe
-                    os.remove("/tmp/"+os.path.basename(self.pidfile)+".pid")        #y se elimina
+                if os.path.exists("/tmp/"+self.filename+".pid"):   #se verifica si el archivo .pid existe
+                    os.remove("/tmp/"+self.filename+".pid")        #y se elimina
             else:
                 exit_err(error)             #log del error
 
     def restart(self):
         self.stop()
-        self.start()
+        self.start()         
 
-    def run(self):
-        #funcion run se hace el override desde afuera
+    #función principal del demonio se agrega lo que se desea que el demonio realice
+    def run(self):        
         raise NotImplementedError
 
-
-class Midemonio(Demonio):
-    #función principal del demonio se agrega lo que se desea que el demonio realice
+class midemonio(Demonio):
     def run(self):
         try:
-            if len(self.arg)>0:                
-                os.execl(self.pidfile,*self.arg) #OJO CON ESTE de los argumentos
-            else:
-                os.execl(self.pidfile)
+            #cmd=[self.pidfile,self.pidfile]
+            cmd=[self.pidfile]+self.arg
+            os.execvp(cmd[0],cmd)
         except OSError as e:
             print(e)
-
-
+        
+         
 if __name__ == '__main__':
 
-    print(sys.argv)
-    if len(sys.argv) >= 3:        #calcedaemon.py start path arg1 arg2 arg3
-        print(sys.argv[2])
-        filepath=sys.argv[2]
-        
-        
-        
-
-        if 'start' == sys.argv[1]:
-            daemon = Midemonio(filepath,sys.argv[3])
+    #print(sys.argv)
+    if len(sys.argv) >= 3:        #calcedaemon.py start path arg1 arg2 arg3        
+        filepath=os.path.abspath(os.path.expanduser(sys.argv[2]))
+        print(filepath) 
+        filename=pathlib.Path(filepath).name
+        print(filename)       
+        print(sys.argv[3:])
+        daemon = midemonio(filename,filepath,sys.argv[3:])
+        if 'start' == sys.argv[1]:             
             daemon.start()
-        elif 'stop' == sys.argv[1]:
-            daemon = Midemonio(filepath,sys.argv[0])
+        elif 'stop' == sys.argv[1]:           
             daemon.stop()
-        elif 'restart' == sys.argv[1]:
-            daemon = Midemonio(filepath,sys.argv[3])
+        elif 'restart' == sys.argv[1]:            
             daemon.restart()
         else:
             print("Comando desconocido")
             sys.exit(2)
-        sys.exit(0)
+        #sys.exit(0)
     else:
         print("modo de uso: %s start|stop|restart nombre_del_demonio" % sys.argv[0])
-        sys.exit(2)
+        #sys.exit(2)
