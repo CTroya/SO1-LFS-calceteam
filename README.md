@@ -75,8 +75,7 @@ positional arguments:
 optional arguments:
   -h, --help  show this help message and exit
 ## limpiar
-    Clears the terminal output
-miftp te voy a deber
+   Clears the terminal output
 Usage: permiso [-h] mode file
 
 positional arguments:
