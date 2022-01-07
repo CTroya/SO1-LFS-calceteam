@@ -68,20 +68,20 @@ class Demonio(object):
         os.dup2(se.fileno(), sys.stderr.fileno())
 
         #ESCRIBIR EL ARCHIVO PID
-        #atexit.register(self.delpid)
+        atexit.register(self.delpid)
         pid = str(os.getpid())
 
-        with open("/tmp/"+self.filename+".pid", 'w+') as f:
+        with open("/tmp/calcedaemon/"+self.filename+".pid", 'w+') as f:
             f.write(pid)
         print(pid)
 
     def delpid(self):
-        os.remove(self.filename)
+        os.remove("/tmp/calcedaemon/"+self.filename+".pid")
 
     def start(self):
         #ANTES DE INICIAR CORROBORA SI YA EXISTE EL ARCHIVO PID PARA SABER SI EL DEMONIO YA ESTA CORRIENDO
-        
-        if get_pid("/tmp/"+self.filename+".pid"):
+                   
+        if get_pid("/tmp/calcedaemon/"+self.filename+".pid"):
             msg = "El archivo pid %s ya existe. El demonio ya está corriendo"
             exit_err(msg % self.pidfile)
 
@@ -89,7 +89,7 @@ class Demonio(object):
         self.run()
 
     def stop(self):
-        pid = get_pid("/tmp/"+self.filename+".pid")
+        pid = get_pid("/tmp/calcedaemon/"+self.filename+".pid")
         if not pid:
             msg = "El archivo pid %s no existe. El demonio no está corriendo"
             print(msg % self.pidfile)
@@ -102,8 +102,8 @@ class Demonio(object):
         except OSError as e:
             error = e.strerror  
             if 'No such process' in error:                                          #si no se encuentra el archivo pide del proceso activo
-                if os.path.exists("/tmp/"+self.filename+".pid"):   #se verifica si el archivo .pid existe
-                    os.remove("/tmp/"+self.filename+".pid")        #y se elimina
+                if os.path.exists("/tmp/calcedaemon/"+self.filename+".pid"):   #se verifica si el archivo .pid existe
+                    os.remove("/tmp/calcedaemon/"+self.filename+".pid")        #y se elimina
             else:
                 exit_err(error)             #log del error
 

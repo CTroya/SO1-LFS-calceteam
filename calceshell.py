@@ -43,14 +43,16 @@ class calceshell(cmd2.Cmd):
         self.prompt=prompt = getpass.getuser()+"@"+socket.gethostname()+":"+str(os.getcwd())+"$ \n>"
         self._formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
         self._formatterstd = logging.Formatter('%(message)s')
-        self._logger = self.setup_logger('cmdLog', os.path.expanduser('/var/log/shell/movimientos_usuarios.log'), False)
+        self._movimientoLogger = self.setup_logger('cmdLog', os.path.expanduser('/var/log/shell/movimientos_usuarios.log'), False)
+        self._errorLogger = self.setup_logger('errLog', os.path.expanduser('/var/log/shell/sistema_error.log'), True)
+        self._ftpLogger = self.setup_logger('ftpLog', os.path.expanduser('/var/log/shell/shell_transferencias.log'), True)
         self.register_postparsing_hook(self.logUserCmd)
 
     def logUserCmd(self, params: cmd2.plugin.PostparsingData) -> cmd2.plugin.PostparsingData:
         # Esta funcion realiza el hook para logear los comandos que ingresó el usuario
         # Los datos ingresados estan disponibles en params.statement y .raw es exactamente lo que el usuario escribio antes de procesar 
         
-        self._logger.info(params.statement.raw+" "+getpass.getuser())
+        self._movimientoLogger.info(params.statement.raw+" :HECHO POR = "+getpass.getuser())
         return params
 
     def setup_logger(self, name, log_file, toStdout, level=logging.INFO):
@@ -70,8 +72,7 @@ class calceshell(cmd2.Cmd):
     def postcmd(self, stop: bool, line: str) -> bool: #FUNCION QUE SE EJECUTA LUEGO DE CADA COMANDO AQUI SE PUEDE HOOKEAR EL CAMBIO DE PROMPT!!!!!
         #wd=getpass.getuser()+"@"+socket.gethostname()+":"+str(os.getcwd())+"$ \n"
         #self.prompt = style('{!r} $ '.format(wd), fg = Fg.DARK_GRAY, bg = Bg.BLUE,bold=True) #para dejarle chururu
-        self.prompt = getpass.getuser()+"@"+socket.gethostname()+":"+str(os.getcwd())+"$ \n>" 
-          
+        self.prompt = getpass.getuser()+"@"+socket.gethostname()+":"+str(os.getcwd())+"$ \n>"           
         return stop
 
 
@@ -83,7 +84,7 @@ class calceshell(cmd2.Cmd):
     @with_argparser(claveParser)
     def do_clave(self,opt):
         if os.getuid() != 0: 
-            self.perror("No se tienen los permisos para realizar la operación")
+            self._errorLogger.error("No se tienen los permisos para realizar la operación")
             return
         paths = ["/etc/shadow","/etc/passwd"]
         userName = opt.usr[0]
@@ -105,7 +106,7 @@ class calceshell(cmd2.Cmd):
                 userColumnPasswd = i
         #Si no se encuentra el usuario, tiramos un mensaje de error antes de salir de ejecucion        
         if userColumnShadow == 0 or userColumnPasswd == 0:
-            self.poutput("No se encuentra el usuario especificado")
+            self._errorLogger.error("No se encuentra el usuario especificado")
             return 
         #Pedimos input de la contraseña con echo desactivado, por motivos de seguridad
         userPassword = getpass.getpass()
@@ -139,7 +140,7 @@ class calceshell(cmd2.Cmd):
   
     def do_usuario(self, opt):
         if getpass.getuser() != 'root': 
-            self.perror("No posees los permisos necesarios para añadir usuarios")
+            self._errorLogger.error("No posees los permisos necesarios para añadir usuarios")
             return    
         
         userName = opt.usr[0]
@@ -153,7 +154,7 @@ class calceshell(cmd2.Cmd):
         for i in range(len(files[2])):
             #print(files[2][i])
             if files[2][i][0] == userName:
-                self.perror(f"{userName} ya existe. Saliendo....")
+                self._errorLogger.error(f"{userName} ya existe. Saliendo....")
                 return
         #se obtienen los ID de usuario y grupo nuevos
         userID = resources.getNewUserID()
@@ -198,7 +199,7 @@ class calceshell(cmd2.Cmd):
             os.chmod(opt.file,int(str(opt.mode[0]),base=8))
             self.poutput(f"Se actualizaron los permisos de {opt.file}")
         except Exception as er:
-            self.perror(er)
+            self._errorLogger.error(er)
         return 0
 
     def complete_permiso(self, text, line, begidx, endidx):
@@ -215,7 +216,7 @@ class calceshell(cmd2.Cmd):
         direccion=os.path.abspath(os.path.expanduser(opt.dir[0]))        
         #Verificamos si el directorio ya existe
         if os.path.exists(direccion):
-            print(f"crearDir: cannot create directory ‘{direccion}’: File exists")
+            self._errorLogger.error(f"crearDir: cannot create directory ‘{direccion}’: File exists")
         else:
             os.mkdir(direccion)
         return 
@@ -238,24 +239,30 @@ class calceshell(cmd2.Cmd):
             #Verificar si existe el usuario que se pasa
             shutil.chown(archivo,usuario,usuario)   #nombre del archivo, usuario , grupo
         except Exception as er:       
-            self.perror(er)
-        return 0
+            self._errorLogger.error(er)
+        return
             
     #Comando de cliente FTP
+    miftpParser = Cmd2ArgumentParser()
+    miftpParser.add_argument('ip',nargs=1,help='Introduzca la IP del servidor FTP al cual se quiere conectar')
+    miftpParser.add_argument('port',nargs='?',type=int,default=21,help='Introduzca el puerto que utiliza el servidor por defecto 21')
+    @with_argparser(miftpParser)
     def do_miftp(self,opt):
+        print(opt.ip[0])
+        print(opt.port)
         conectado=False
         ftp = FTP()
         usuario=input("Usuario:")
         contrase=input("Pass:")
         #Se espera cmd ipdelhost user password
-        try:
-            ftp.connect("127.0.0.1",21)
-            print("conect")
+        try:            
+            ftp.connect(opt.ip[0],opt.port)
+            self._ftpLogger.info("conect")
             ftp.login(usuario,contrase)
-            print(ftp.getwelcome())
+            self._ftpLogger.info(ftp.getwelcome())
             conectado=True
         except Exception as er:
-            print(er)
+            self._errorLogger.error(er)
         while conectado:
             cmd=input("ftp> ")
             if cmd == "listar":
@@ -265,44 +272,46 @@ class calceshell(cmd2.Cmd):
             elif cmd == "limpiar":
                 print("\033[H\033[J", end="")
             elif cmd == "directorio":
-                print(ftp.pwd())
+                self._ftpLogger.info(ftp.pwd())
             elif "descargar " in cmd:
                 cmd = cmd[10:]
                 try:
                     archivos=ftp.nlst()
                 except Exception as er:
-                    print(er)
+                    self._errorLogger.error(er)
                     break
                 if cmd in archivos:
                     #descargar archivo
-                    print("Descargando el archivo "+cmd)
+                    self._ftpLogger.info("Descargando el archivo "+cmd)
                     try:
                         ftp.retrbinary("RETR " + cmd ,open(cmd, 'wb').write)
                     except:
-                        print("Error al descargar el archivo")
+                        self._errorLogger.error("Error al descargar el archivo")
                 else:
-                    print("Error no se encuentra el archivo")
+                    self._errorLogger.error("Error no se encuentra el archivo")
             elif "cargar " in cmd:
                 cmd = cmd[7:]
                 if isfile(cmd):#comprobamos si es un archivo
                     try:
+                        print(cmd)
+                        
                         archivo=open(cmd,'rb')
-                        nombreArchivo=input("Ingrese nombre para guardar el archivo: ")#falta comprobar que no tenga espacios etc
-                        ftp.storbinary('STOR '+nombreArchivo, archivo)#cargar el archivo
+                        nombreArchivo=input("Ingrese nombre para guardar el archivo: ")
+                        ftp.storbinary('STOR '+nombreArchivo, archivo, 1024)#cargar el archivo
                         archivo.close()                    
                     except:
-                        print("Error al abrir el archivo")
+                        self._errorLogger.error("Error al abrir el archivo")
                         break
                 else:
-                    print("Error no es un archivo")
+                    self._errorLogger.error("Error no es un archivo")
                     return 0
                 
             else:
-                print("Error: "+cmd+" no valido")
+                self._errorLogger.error("Error: "+cmd+" no valido")
         try:
             ftp.quit()
         except Exception as er1:
-            print(er1)
+            self._errorLogger.error(er1)
 
 
 
@@ -317,17 +326,17 @@ class calceshell(cmd2.Cmd):
         origin = os.path.abspath(os.path.expanduser(opt.src[0]))
         destiny = os.path.abspath(os.path.expanduser(opt.dst[0]))
         if not isdir(destiny):
-            self.perror(f"{destiny} no es un directorio válido para mover el archivo")
+            self._errorLogger.error(f"{destiny} no es un directorio válido para mover el archivo")
             return
         elif not os.access(destiny,os.R_OK):
-            self.perror(f"No se tiene los permisos necesarios para acceder a {destiny}")
+            self._errorLogger.error(f"No se tiene los permisos necesarios para acceder a {destiny}")
             return 
         else:           
             try:
                 shutil.move(origin,destiny)
                 self.poutput(f"Se movio {opt.src[0]} a {opt.dst[0]}")
             except Exception as er:
-                self.perror(er)
+                self._errorLogger.error(er)
         return 
         
     def complete_mover(self, text, line, begidx, endidx):
@@ -347,18 +356,18 @@ class calceshell(cmd2.Cmd):
             dest.dst=os.path.abspath(os.path.expanduser(dest.dst))
             #print(dest.dst)
             if not isdir(dest.dst):
-                self.perror("No es un directorio valido")
+                self._errorLogger.error("No es un directorio valido")
                 return
                 
             elif not os.access(dest.dst,  os.R_OK):
-                self.perror("No se tiene acceso de lectura al directorio")
+                self._errorLogger.error("No se tiene acceso de lectura al directorio")
                 return
 
             else:
                 try:
                     os.chdir(dest.dst)
                 except Exception as ex:
-                    self.perror(ex)
+                    self._errorLogger.error(ex)
             
         return
 
@@ -367,14 +376,13 @@ class calceshell(cmd2.Cmd):
         return self.path_complete(text, line, begidx, endidx)
 
 
-
     def do_limpiar(self, line):
         #print("\033[H\033[J", end="")
         self.poutput("\033[H\033[J", end="")
 
 
     def do_salir(self, line):        
-        self.poutput("Bye")
+        #self.poutput("Bye")
         return True
 
     #Comando que nos deja entrar a modo root
@@ -383,7 +391,7 @@ class calceshell(cmd2.Cmd):
         file_path = os.path.dirname(__file__)
         self.poutput(sys.executable)
         proc = subprocess.call(['sudo',sys.executable,file_path+"/calceshell.py"])
-        return 0
+        return
 
     do_cd=do_ir  #cd es interno de la shell y un proceso no puede cambiar el cwd de otro proceso
 
@@ -406,7 +414,7 @@ class calceshell(cmd2.Cmd):
                 self.stdout.write("    ")
         else:
             if isfile(opt.dir):
-                self.perror("La ruta especificada no es un directorio válido o el directorio no existe")
+                self._errorLogger.error("La ruta especificada no es un directorio válido o el directorio no existe")
                 return
         #lista los archivos y directorios correspondientes a la ruta especificada           
             archivos = os.listdir(os.path.abspath(opt.dir))
@@ -429,8 +437,9 @@ class calceshell(cmd2.Cmd):
         tiempoon=strftime("%Hh%Mm", gmtime(round(time()-psutil.boot_time())))
         usuariosOn=len(psutil.users())
         load1, load5, load15 = os.getloadavg()
-        self._logger.info(f"{tiempo} up {tiempoon}, {usuariosOn} usuarios, carga promedio: {load1}, {load5}, {load15}")
-        self._logger.info("Holamundo log")   
+        
+        self.poutput(f"{tiempo} up {tiempoon}, {usuariosOn} usuarios, carga promedio: {load1}, {load5}, {load15}")
+        
         return
 
 
@@ -451,7 +460,7 @@ class calceshell(cmd2.Cmd):
         print(opt.dst)
 
         if not os.path.exists(opt.src):
-            self.perror("ALV no se puede copiar algo que no existe :V")
+            self._errorLogger.error("ALV no se puede copiar algo que no existe :V")
                 
         # origin = os.path.join(os.getcwd(),command[1])
         # destiny = os.path.join(os.getcwd(),command[2])
@@ -468,9 +477,18 @@ class calceshell(cmd2.Cmd):
     def complete_copiar(self, text, line, begidx, endidx):
         return self.path_complete(text, line, begidx, endidx)
 
+    def listarDaemon(self):
+        l=os.listdir('/tmp/calcedaemon')
+        li=[x.split('.') for x in l]
+        for i in range(len(li)):
+            li[i].remove('pid')
+            li[i] = '.'.join(li[i])
+        for i in range(len(li)):
+            print(li[i])
+
     controlsysParser=Cmd2ArgumentParser()
-    controlsysParser.add_argument('cmd',nargs=1,type=str, help='llala') #corroborar que sea comando:V
-    controlsysParser.add_argument('daemon',nargs=(1,), help='llalaa') #opcional revisar
+    controlsysParser.add_argument('cmd',nargs=1,type=str, help='Ingrese la accion a realizar sobre los demonios start|stop|restart|list') #corroborar que sea comando:V
+    controlsysParser.add_argument('daemon',nargs=(0,), help='Ingrese el nombre del programa que quiere demonizar! debe estar marcado como ejecutable') #opcional revisar
     @with_argparser(controlsysParser)
     def do_controlsys(self,opt):
         command=opt.cmd[0]        
@@ -486,12 +504,16 @@ class calceshell(cmd2.Cmd):
             subprocess.run(["python3","calceDaemon.py","stop"]+demonio)          
             
         elif command == 'restart':  
-            subprocess.run(["python3","calceDaemon.py","restart"]+demonio)          
-            
+            subprocess.run(["python3","calceDaemon.py","restart"]+demonio) 
+
+        elif command == 'list':
+            self.listarDaemon()    
         else:
-            print("Comando no reconocido")
+            self._errorLogger.error("Comando no reconocido")
             return
-         
+    
+    def complete_controlsys(self, text, line, begidx, endidx):
+        return self.path_complete(text, line, begidx, endidx)         
 
 
 if __name__ == '__main__':
@@ -504,7 +526,12 @@ if __name__ == '__main__':
         os.system('sudo touch /var/log/shell/movimientos_usuarios.log')
         os.system('sudo touch /var/log/shell/sistema_error.log')
         #Sacrilegio mode on:
-        os.system('sudo chmod 777 -R /var/log/shell') #crear grupo y añadir usuarios  que necesiten usar la shell 755
+        os.system('sudo chmod 774 -R /var/log/shell') #crear grupo y añadir usuarios  que necesiten usar la shell 755
+
+    if not os.path.exists('/tmp/calcedaemon'):    
+        os.system('sudo mkdir /tmp/calcedaemon')
+        os.system('sudo chown root:calceshell -R /tmp/calcedaemon')
+        os.system('sudo chmod 774 -R /tmp/calcedaemon')
 
     #Creacion del logger para entrada y salida de usuarios con el control de horario
     formatoDelLogin = logging.Formatter('%(levelname)s %(asctime)s %(message)s')
@@ -543,5 +570,7 @@ if __name__ == '__main__':
 
     
     shell=calceshell()
-    sys.exit(shell.cmdloop())
+    shell.cmdloop()
+    userLogger.info(f"El usuario {getpass.getuser()} ha finalizado sesion desde la IP:{IPAddr}")
+    sys.exit(0)
     
