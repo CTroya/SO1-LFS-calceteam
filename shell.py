@@ -8,6 +8,7 @@ import getpass
 import rlcompleter, readline
 import logging
 import pwd
+import socket 
 
 def setup_logger(name, log_file, toStdout, level=logging.INFO):
     #Se crean los controladores del formato
