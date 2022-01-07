@@ -19,77 +19,92 @@
 
 # Documentación
 ## ir
-Usage: ir [-h] [dst]
+Usage: ir [dst]
 
 positional arguments:
   dst         Directorio al cual se quiere ir, para subir un ..
 
-optional arguments:
-  -h, --help  show this help message and exit
-Usage: listar [-h] [dir]
+### listar
+Usage: listar [dir]
 
 positional arguments:
   dir         Ruta al directorio
 
-optional arguments:
-  -h, --help  show this help message and exit
 ## mover
-Usage: mover [-h] src dst
+Usage: mover src dst
 
 positional arguments:
   src         Archivo que se quiere mover
   dst         Directorio al cual se quiere mover
 
-optional arguments:
-  -h, --help  show this help message and exit
 ## Salir 
-  Cierra la shell
+Usage: salir
+Cierra la shell
 
 ## tiempoEncendido
-   Displays amount of time passed since the system was turned on
-clave
-Usage: clave [-h] usr
+Usage: tiempoEncendido
+Displays amount of time passed since the system was turned on
+
+### clave
+Usage: clave usr
 
 positional arguments:
   usr         Nombre del usuario al cual cambiar la contraseña
 
-optional arguments:
-  -h, --help  show this help message and exit
-copiar
-Usage: copiar [-h] src dst
+### copiar
+Usage: copiar src dst
 
 positional arguments:
   src         El archivo o directorio fuente
   dst         El archivo o directorio destino
 
-optional arguments:
-  -h, --help  show this help message and exit
 ## dueno
-Usage: dueno [-h] file usr
+Usage: dueno file usr
 
 positional arguments:
   file        Ruta al archivo o directorio que se quiere cambiar de dueño
   usr         Nombre de usuario del nuevo dueño
 
-optional arguments:
-  -h, --help  show this help message and exit
 ## limpiar
-   Clears the terminal output
-Usage: permiso [-h] mode file
+Clears the terminal output
+Usage: permiso mode file
 
-positional arguments:
-  mode        Permisos que se asignaran al archivo/directorio
-  file        Archivo o directorio al cual se le quiere modificar los permisos
-
-optional arguments:
-  -h, --help  show this help message and exit
 ## super
 Log-in to root mode
-usuario
-Usage: usuario [-h] usr
+
+### usuario
+Usage: usuario usr
 
 positional arguments:
   usr         Nombre del usuario a añadir
 
-optional arguments:
-  -h, --help  show this help message and exit
+### controlsys
+Usage: controlsys  cmd [daemon [...]]
+
+positional arguments:
+  cmd         Ingrese la accion a realizar sobre los demonios start|stop|restart|list
+  daemon      Ingrese el nombre del programa que quiere demonizar! debe estar marcado como 
+  
+### miftp
+Usage: miftp ip [port]
+
+positional arguments:
+  ip          Introduzca la IP del servidor FTP al cual se quiere conectar
+  port        Introduzca el puerto que utiliza el servidor por defecto 2
+
+### permiso
+Usage: permiso mode file
+
+positional arguments:
+  mode        Permisos que se asignaran
+  file        Archivo o directorio al cual se le quiere modificar los permisos
+
+### super
+Usage: super
+Log-in al usuario root 
+
+### usuario
+Usage: usuario  usr
+
+positional arguments:
+  usr         nombre del usuario
