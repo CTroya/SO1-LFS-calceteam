@@ -43,8 +43,7 @@ positional arguments:
 optional arguments:
   -h, --help  show this help message and exit
 ## Salir 
-  Exit the terminal
-no se algo asi xD
+  Cierra la shell
 
 ## tiempoEncendido
    Displays amount of time passed since the system was turned on
