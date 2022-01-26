@@ -1,3 +1,4 @@
+
 ## Implementacion de shell para Linux mediante Python
 ### Integrantes
 - 🙋‍♂️ Fernando Caballero
@@ -19,92 +20,81 @@
 
 # Documentación
 ## ir
-Usage: ir [dst] <br />
+Usage: ir [dst]
 
-positional arguments: <br />
-  dst         Directorio al cual se quiere ir, para subir un ..
-
+positional arguments:
+  dst    ->     Directorio al cual se quiere ir, para subir un ..
 ### listar
-Usage: listar [dir] <br />
-
-positional arguments: <br />
-  dir         Ruta al directorio
+Usage: listar [dir]
+positional arguments:
+  dir    ->     Ruta al directorio
 
 ## mover
-Usage: mover src dst <br />
-
-positional arguments: <br /> 
-  src         Archivo que se quiere mover <br />
-  dst         Directorio al cual se quiere mover
+Usage: mover [src] [dst]
+positional arguments: 
+  src     ->    Archivo que se quiere mover
+  dst     ->    Directorio al cual se quiere mover
 
 ## Salir 
-Usage: salir <br />
+Usage: salir
 Cierra la shell
 
 ## tiempoEncendido
-Usage: tiempoEncendido <br />
+Usage: tiempoEncendido
 Displays amount of time passed since the system was turned on
 
 ### clave
-Usage: clave usr <br />
-
-positional arguments: <br />
-  usr         Nombre del usuario al cual cambiar la contraseña
-
+Usage: [clave] [usr]
+positional arguments:
+  usr     ->     Nombre del usuario al cual cambiar la contraseña
 ### copiar
-Usage: copiar src dst <br />
-
-positional arguments: <br />
-  src         El archivo o directorio fuente <br />
-  dst         El archivo o directorio destino
+Usage: copiar [src] [dst]
+positional arguments:
+  src    ->     El archivo o directorio fuente
+  dst     ->    El archivo o directorio destino
 
 ## dueno
-Usage: dueno file usr <br />
-
+Usage: dueno [file] [usr]
 positional arguments: <br />
-  file        Ruta al archivo o directorio que se quiere cambiar de dueño <br />
-  usr         Nombre de usuario del nuevo dueño
+  file    ->    Ruta al archivo o directorio que se quiere cambiar de dueño <br />
+  usr     ->    Nombre de usuario del nuevo dueño
 
 ## limpiar
-Clears the terminal output <br /> <br />
-Usage: permiso mode file <br />
-
+Clears the terminal output
+Usage: permiso  [mode] [file]
 ## super 
 Log-in to root mode
 
 ### usuario
 Usage: usuario usr
 
-positional arguments: <br />
-  usr         Nombre del usuario a añadir
+positional arguments:
+  usr     ->    Nombre del usuario a añadir
 
 ### controlsys
 Usage: controlsys  cmd [daemon [...]]
 
 positional arguments:
-  cmd         Ingrese la accion a realizar sobre los demonios start|stop|restart|list <br />
-  daemon      Ingrese el nombre del programa que quiere demonizar! debe estar marcado como 
+  cmd    ->     Ingrese la accion a realizar sobre los demonios start|stop|restart|list <br />
+  daemon  ->    Ingrese el nombre del programa que quiere demonizar! debe estar marcado como 
   
 ### miftp
-Usage: miftp ip [port]
+Usage: miftp [ip] [port]
 
-positional arguments: <br />
-  ip          Introduzca la IP del servidor FTP al cual se quiere conectar <br />
-  port        Introduzca el puerto que utiliza el servidor por defecto 2
+positional arguments:
+  ip     ->     Introduzca la IP del servidor FTP al cual se quiere conectar
+  port    ->    Introduzca el puerto que utiliza el servidor por defecto
 
 ### permiso
 Usage: permiso mode file
 
-positional arguments: <br />
-  mode        Permisos que se asignaran <br />
-  file        Archivo o directorio al cual se le quiere modificar los permisos
-
+positional arguments: 
+  mode   ->     Permisos que se asignaran 
+  file   ->     Archivo o directorio al cual se le quiere modificar los permisos
 ### super
-Usage: super <br />
-Log-in al usuario root 
-
+Usage: super
+Log-in al usuario root
 ### usuario
-Usage: usuario  usr <br />
-
-positional arguments: <br />
-  usr         nombre del usuario
+Usage: usuario  usr
+positional arguments:
+  usr    ->     nombre del usuario
