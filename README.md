@@ -19,92 +19,92 @@
 
 # Documentación
 ## ir
-Usage: ir [dst] <br />
+Modo de uso: ir [dst] <br />
 
-positional arguments: <br />
-  dst         Directorio al cual se quiere ir, para subir un ..
+Argumentos: <br />
+  dst          Ruta al nuevo directorio de trabajo
 
 ### listar
-Usage: listar [dir] <br />
+Modo de uso: listar [dir] <br />
 
-positional arguments: <br />
-  dir         Ruta al directorio
+Argumentos: <br />
+  dir         Ruta al directorio a listar
 
 ## mover
-Usage: mover src dst <br />
+Modo de uso: mover src dst <br />
 
-positional arguments: <br /> 
+Argumentos: <br /> 
   src         Archivo que se quiere mover <br />
-  dst         Directorio al cual se quiere mover
+  dst         Ruta al directorio al cual se quiere mover
 
 ## Salir 
-Usage: salir <br />
+Modo de uso: salir <br />
 Cierra la shell
 
 ## tiempoEncendido
-Usage: tiempoEncendido <br />
-Displays amount of time passed since the system was turned on
+Modo de uso: tiempoEncendido <br />
+Imprime en pantalla el tiempo que el sistema estuvo encendido
 
 ### clave
-Usage: clave usr <br />
+Modo de uso: clave usr <br />
 
-positional arguments: <br />
+Argumentos: <br />
   usr         Nombre del usuario al cual cambiar la contraseña
 
 ### copiar
-Usage: copiar src dst <br />
+Modo de uso: copiar src dst <br />
 
-positional arguments: <br />
+Argumentos: <br />
   src         El archivo o directorio fuente <br />
   dst         El archivo o directorio destino
 
 ## dueno
-Usage: dueno file usr <br />
+Modo de uso: dueno file usr <br />
 
-positional arguments: <br />
+Argumentos: <br />
   file        Ruta al archivo o directorio que se quiere cambiar de dueño <br />
   usr         Nombre de usuario del nuevo dueño
 
 ## limpiar
-Clears the terminal output <br /> <br />
-Usage: permiso mode file <br />
+Limpia los caracteres de salida de la terminal <br /> <br />
+Modo de uso: limpiar <br />
 
 ## super 
-Log-in to root mode
+Accede al modo root
 
 ### usuario
-Usage: usuario usr
+Modo de uso: usuario usr
 
-positional arguments: <br />
+Argumentos: <br />
   usr         Nombre del usuario a añadir
 
 ### controlsys
-Usage: controlsys  cmd [daemon [...]]
+Modo de uso: controlsys  cmd [daemon [...]]
 
-positional arguments:
+Argumentos:
   cmd         Ingrese la accion a realizar sobre los demonios start|stop|restart|list <br />
   daemon      Ingrese el nombre del programa que quiere demonizar! debe estar marcado como 
   
 ### miftp
-Usage: miftp ip [port]
+Modo de uso: miftp ip [port]
 
-positional arguments: <br />
+Argumentos: <br />
   ip          Introduzca la IP del servidor FTP al cual se quiere conectar <br />
   port        Introduzca el puerto que utiliza el servidor por defecto 2
 
 ### permiso
-Usage: permiso mode file
+Modo de uso: permiso mode file
 
-positional arguments: <br />
+Argumentos: <br />
   mode        Permisos que se asignaran <br />
   file        Archivo o directorio al cual se le quiere modificar los permisos
 
 ### super
-Usage: super <br />
+Modo de uso: super <br />
 Log-in al usuario root 
 
 ### usuario
-Usage: usuario  usr <br />
+Modo de uso: usuario  usr <br />
 
-positional arguments: <br />
+Argumentos: <br />
   usr         nombre del usuario
