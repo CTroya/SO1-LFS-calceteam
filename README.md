@@ -108,3 +108,7 @@ Modo de uso: usuario  usr <br />
 
 Argumentos: <br />
   usr         nombre del usuario
+  
+  # License
+
+Licensed under the [MIT license](LICENSE)
