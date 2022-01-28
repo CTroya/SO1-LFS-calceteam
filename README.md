@@ -24,7 +24,7 @@ Modo de uso: ir [dst] <br />
 Argumentos: <br />
   dst          Ruta al nuevo directorio de trabajo
 
-### listar
+## listar
 Modo de uso: listar [dir] <br />
 
 Argumentos: <br />
@@ -45,13 +45,13 @@ Cierra la shell
 Modo de uso: tiempoEncendido <br />
 Imprime en pantalla el tiempo que el sistema estuvo encendido
 
-### clave
+## clave
 Modo de uso: clave usr <br />
 
 Argumentos: <br />
   usr         Nombre del usuario al cual cambiar la contraseña
 
-### copiar
+## copiar
 Modo de uso: copiar src dst <br />
 
 Argumentos: <br />
@@ -72,38 +72,38 @@ Modo de uso: limpiar <br />
 ## super 
 Accede al modo root
 
-### usuario
+## usuario
 Modo de uso: usuario usr
 
 Argumentos: <br />
   usr         Nombre del usuario a añadir
 
-### controlsys
+## controlsys
 Modo de uso: controlsys  cmd [daemon [...]]
 
 Argumentos:
   cmd         Ingrese la accion a realizar sobre los demonios start|stop|restart|list <br />
   daemon      Ingrese el nombre del programa que quiere demonizar! debe estar marcado como 
   
-### miftp
+## miftp
 Modo de uso: miftp ip [port]
 
 Argumentos: <br />
   ip          Introduzca la IP del servidor FTP al cual se quiere conectar <br />
   port        Introduzca el puerto que utiliza el servidor por defecto 2
 
-### permiso
+## permiso
 Modo de uso: permiso mode file
 
 Argumentos: <br />
   mode        Permisos que se asignaran <br />
   file        Archivo o directorio al cual se le quiere modificar los permisos
 
-### super
+## super
 Modo de uso: super <br />
 Log-in al usuario root 
 
-### usuario
+## usuario
 Modo de uso: usuario  usr <br />
 
 Argumentos: <br />
